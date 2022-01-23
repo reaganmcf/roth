@@ -3,6 +3,7 @@ use crate::error::RuntimeError;
 #[derive(Debug)]
 pub enum Op {
     Int { val: i64 },
+    String { val: String },
     Add,
     Sub,
     Mul,

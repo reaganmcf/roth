@@ -1,15 +1,20 @@
-use crate::token::{Token, TokenKind};
-use miette::Result;
+use crate::{
+    error::ParseError,
+    token::{Token, TokenKind},
+};
+use miette::{NamedSource, Result};
 use std::collections::VecDeque;
 
-pub struct Lexer {
+pub struct Lexer<'a> {
+    raw_source: &'a str,
     source: VecDeque<char>,
-    cursor: u64,
+    cursor: usize,
 }
 
-impl Lexer {
-    pub fn new(buffer: &str) -> Self {
+impl<'a> Lexer<'a> {
+    pub fn new(buffer: &'a str) -> Self {
         Self {
+            raw_source: buffer,
             source: buffer.chars().collect(),
             cursor: 0,
         }
@@ -27,6 +32,38 @@ impl Lexer {
         }
     }
 
+    fn create_token(
+        &self,
+        raw_token: String,
+        start: usize,
+        end: usize,
+    ) -> Result<Token, ParseError> {
+        let kind = match raw_token.as_str() {
+            "+" => Ok(TokenKind::Add),
+            "-" => Ok(TokenKind::Sub),
+            "*" => Ok(TokenKind::Mul),
+            "/" => Ok(TokenKind::Div),
+            _ => {
+                if raw_token.starts_with("\"") {
+                    if raw_token.ends_with("\"") {
+                        Ok(TokenKind::String)
+                    } else {
+                        Err(ParseError::UnterminatedStringLiteral)
+                    }
+                } else if raw_token.parse::<i64>().is_ok() {
+                    Ok(TokenKind::Number)
+                } else {
+                    Err(ParseError::UnkownToken(
+                        self.raw_source.to_string(),
+                        (start, raw_token.len()).into(),
+                    ))
+                }
+            }
+        }?;
+
+        Ok(Token::new(raw_token, start, end, kind))
+    }
+
     pub fn lex(&mut self) -> Result<Vec<Token>> {
         let mut tokens = Vec::new();
         self.eat_trivia();
@@ -36,12 +73,12 @@ impl Lexer {
             while let Some(c) = self.source.pop_front() {
                 self.cursor += 1;
                 if c.is_whitespace() {
-                    let kind = TokenKind::new(&curr)?;
                     let end = self.cursor;
 
                     // Gotta subtract one frm the end becuase we don't
                     // want to include whitespace in the Span
-                    tokens.push(Token::new(curr.clone(), start, end - 1, kind));
+                    let token = self.create_token(curr.clone(), start, end)?;
+                    tokens.push(token);
                     curr.clear();
                     break;
                 } else {
@@ -53,10 +90,10 @@ impl Lexer {
             // Check if we have an unfinished token here
             // which can happen at the end of the file
             if curr.len() != 0 {
-                let kind = TokenKind::new(&curr)?;
                 let end = self.cursor;
 
-                tokens.push(Token::new(curr.clone(), start, end, kind));
+                let token = self.create_token(curr.clone(), start, end)?;
+                tokens.push(token);
                 curr.clear();
             }
 

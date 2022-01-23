@@ -48,6 +48,7 @@ fn eval(ops: Vec<Op>) -> Result<i64> {
     for op in ops.into_iter() {
         match op {
             Op::Int { val } => stack.push(Op::Int { val }),
+            Op::String { val } => stack.push(Op::String { val }),
             Op::Add => {
                 let x = stack.pop()?;
                 let y = stack.pop()?;

@@ -26,6 +26,7 @@ impl Parser {
                     Ok(v) => Op::Int { val: v },
                     Err(_) => unreachable!("number wasn't actually number???"),
                 },
+                TokenKind::String => Op::String {val: token.inner.clone() }
             };
 
             ops.push(op);

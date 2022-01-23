@@ -1,11 +1,18 @@
-use miette::Diagnostic;
+use miette::{Diagnostic, NamedSource, SourceSpan};
 use thiserror::Error;
 
 #[derive(Error, Debug, Diagnostic)]
 pub enum ParseError {
     #[error("unknown token")]
     #[diagnostic(code(roth::unknown_token))]
-    UnkownToken,
+    UnkownToken(
+        #[source_code] String,
+        #[label("Unknown token")] SourceSpan,
+    ),
+
+    #[error("unterminated string literal")]
+    #[diagnostic(code(roth::unterminated_string))]
+    UnterminatedStringLiteral,
 }
 
 #[derive(Error, Debug, Diagnostic)]
