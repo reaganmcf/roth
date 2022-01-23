@@ -55,5 +55,22 @@ pub enum RuntimeError {
 
     #[error("Can't eq these types")]
     #[diagnostic(code(roth::invalid_not))]
-    InvalidEq
+    InvalidEq,
+
+    #[error("Can't '<' these types")]
+    #[diagnostic(code(roth::invalid_less_than))]
+    InvalidLessThan,
+
+    #[error("Can't '>' these types")]
+    #[diagnostic(code(roth::invalid_greater_than))]
+    InvalidGreaterThan,
+
+    #[error("Can't '<=' these types")]
+    #[diagnostic(code(roth::invalid_less_than_eq))]
+    InvalidLessThanEq,
+
+    #[error("Can't '>=' these types")]
+    #[diagnostic(code(roth::invalid_greater_than_eq))]
+    InvalidGreaterThanEq,
+
 }

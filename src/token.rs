@@ -53,5 +53,17 @@ pub enum TokenKind {
     Not,
 
     // 'eq'
-    Eq
+    Eq,
+
+    // <
+    LessThan,
+
+    // >
+    GreaterThan,
+
+    // <=
+    LessThanEq,
+    
+    // >=
+    GreaterThanEq,
 }

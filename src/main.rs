@@ -95,6 +95,26 @@ fn eval(ops: Vec<Op>) -> Result<i64> {
                 let y = stack.pop()?;
                 stack.push(x.eq(y)?);
             }
+            Op::LessThan => {
+                let x = stack.pop()?;
+                let y = stack.pop()?;
+                stack.push(x.lt(y)?);
+            }
+            Op::GreaterThan => {
+                let x = stack.pop()?;
+                let y = stack.pop()?;
+                stack.push(x.gt(y)?);
+            }
+            Op::LessThanEq => {
+                let x = stack.pop()?;
+                let y = stack.pop()?;
+                stack.push(x.lte(y)?);
+            }
+            Op::GreaterThanEq => {
+                let x = stack.pop()?;
+                let y = stack.pop()?;
+                stack.push(x.gte(y)?);
+            }
         }
     }
 

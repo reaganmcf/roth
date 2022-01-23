@@ -14,6 +14,10 @@ pub enum Op {
     And,
     Not,
     Eq,
+    LessThan,
+    GreaterThan,
+    LessThanEq,
+    GreaterThanEq,
 }
 
 macro_rules! handlers {
@@ -125,5 +129,49 @@ impl Op {
             (Boolean, Boolean, |x, y| Op::Boolean { val: x == y })
         );
         Err(RuntimeError::InvalidEq)
+    }
+
+    pub fn lt(self, other: Op) -> Result<Op, RuntimeError> {
+        handlers!(
+            self,
+            other,
+            InvalidLessThan,
+            (Int, Int, |x, y| Op::Boolean { val: x < y }),
+            (String, String, |x, y| Op::Boolean { val: x < y })
+        );
+        Err(RuntimeError::InvalidLessThan)
+    }
+
+    pub fn gt(self, other: Op) -> Result<Op, RuntimeError> {
+        handlers!(
+            self,
+            other,
+            InvalidGreaterThan,
+            (Int, Int, |x, y| Op::Boolean { val: x > y }),
+            (String, String, |x, y| Op::Boolean { val: x > y })
+        );
+        Err(RuntimeError::InvalidGreaterThan)
+    }
+
+    pub fn lte(self, other: Op) -> Result<Op, RuntimeError> {
+        handlers!(
+            self,
+            other,
+            InvalidLessThanEq,
+            (Int, Int, |x, y| Op::Boolean { val: x <= y }),
+            (String, String, |x, y| Op::Boolean { val: x <= y })
+        );
+        Err(RuntimeError::InvalidLessThanEq)
+    }
+
+    pub fn gte(self, other: Op) -> Result<Op, RuntimeError> {
+        handlers!(
+            self,
+            other,
+            InvalidGreaterThanEq,
+            (Int, Int, |x, y| Op::Boolean { val: x >= y }),
+            (String, String, |x, y| Op::Boolean { val: x >= y })
+        );
+        Err(RuntimeError::InvalidGreaterThanEq)
     }
 }
