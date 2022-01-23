@@ -23,6 +23,9 @@ impl Parser {
                 TokenKind::Mul => Op::Mul,
                 TokenKind::Div => Op::Div,
                 TokenKind::Print => Op::Print,
+                TokenKind::Or => Op::Or,
+                TokenKind::And => Op::And,
+                TokenKind::Not => Op::Not,
                 TokenKind::String => Op::String {val: token.inner.clone() },
                 TokenKind::Number => match token.inner.parse::<i64>() {
                     Ok(v) => Op::Int { val: v },

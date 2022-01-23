@@ -76,6 +76,20 @@ fn eval(ops: Vec<Op>) -> Result<i64> {
                 let x = stack.peek()?;
                 x.print()?;
             }
+            Op::Or => {
+                let x = stack.pop()?;
+                let y = stack.pop()?;
+                stack.push(x.or(y)?);
+            }
+            Op::And => {
+                let x = stack.pop()?;
+                let y = stack.pop()?;
+                stack.push(x.and(y)?);
+            }
+            Op::Not => {
+                let val = stack.pop()?;
+                stack.push(val.not()?);
+            }
         }
     }
 

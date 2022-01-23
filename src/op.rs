@@ -10,6 +10,9 @@ pub enum Op {
     Mul,
     Div,
     Print,
+    Or,
+    And,
+    Not
 }
 
 impl Op {
@@ -65,6 +68,33 @@ impl Op {
             Op::String { val } => Ok(println!("{}", val)),
             Op::Boolean { val } => Ok(println!("{}", val)),
             _ => Err(RuntimeError::InvalidPrint),
+        }
+    }
+
+    pub fn or(self, other: Op) -> Result<Op, RuntimeError> {
+        match self {
+            Op::Boolean { val: y } => match other {
+                Op::Boolean { val: x } => Ok(Op::Boolean { val: x || y }),
+                _ => Err(RuntimeError::InvalidOr),
+            },
+            _ => Err(RuntimeError::InvalidOr),
+        }
+    }
+
+    pub fn and(self, other: Op) -> Result<Op, RuntimeError> {
+        match self {
+            Op::Boolean { val: y } => match other {
+                Op::Boolean { val: x } => Ok(Op::Boolean { val: x && y }),
+                _ => Err(RuntimeError::InvalidAnd),
+            },
+            _ => Err(RuntimeError::InvalidAnd),
+        }
+    }
+
+    pub fn not(self) -> Result<Op, RuntimeError> {
+        match self {
+            Op::Boolean { val } => Ok(Op::Boolean { val: !val }),
+            _ => Err(RuntimeError::InvalidNot)
         }
     }
 }

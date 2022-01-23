@@ -1,4 +1,4 @@
-use miette::{Diagnostic, NamedSource, SourceSpan};
+use miette::{Diagnostic, SourceSpan};
 use thiserror::Error;
 
 #[derive(Error, Debug, Diagnostic)]
@@ -40,4 +40,16 @@ pub enum RuntimeError {
     #[error("Can only use `print` on value types")]
     #[diagnostic(code(roth::invalid_print))]
     InvalidPrint,
+
+    #[error("Can't or these types")]
+    #[diagnostic(code(roth::invalid_or))]
+    InvalidOr,
+
+    #[error("Can't and these types")]
+    #[diagnostic(code(roth::invalid_and))]
+    InvalidAnd,
+
+    #[error("Can't not this types")]
+    #[diagnostic(code(roth::invalid_not))]
+    InvalidNot
 }

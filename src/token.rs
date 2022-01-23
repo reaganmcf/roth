@@ -19,6 +19,15 @@ impl Token {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum TokenKind {
+    // [1-9]+
+    Number,
+
+    // ".+"
+    String,
+
+    // [true|false]
+    Boolean,
+
     // '+'
     Add,
 
@@ -30,16 +39,16 @@ pub enum TokenKind {
 
     // '/'
     Div,
-
-    // [1-9]+
-    Number,
-
-    // ".+"
-    String,
-
-    // [true|false]
-    Boolean,
-
+    
     // 'print'
-    Print
+    Print,
+
+    // 'or'
+    Or,
+
+    // 'and'
+    And,
+
+    // 'not'
+    Not
 }
