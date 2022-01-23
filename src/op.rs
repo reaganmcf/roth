@@ -58,7 +58,7 @@ impl Op {
         }
     }
 
-    pub fn print(self) -> Result<(), RuntimeError> {
+    pub fn print(&self) -> Result<(), RuntimeError> {
         match self {
             Op::Int { val } => Ok(println!("{}", val)),
             Op::String { val } => Ok(println!("{}", val)),

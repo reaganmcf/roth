@@ -70,7 +70,8 @@ fn eval(ops: Vec<Op>) -> Result<i64> {
                 stack.push(x.div(y)?);
             }
             Op::Print => {
-                let x = stack.pop()?;
+                // Print doesn't mutate the stack, so we peek instead of pop
+                let x = stack.peek()?;
                 x.print()?;
             }
         }

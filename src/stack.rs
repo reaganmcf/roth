@@ -10,6 +10,7 @@ impl Stack {
         Self { ops: Vec::new() }
     }
 
+
     pub fn push(&mut self, op: Op) {
         self.ops.push(op);
     }
@@ -18,6 +19,13 @@ impl Stack {
         match self.ops.pop() {
             Some(o) => Ok(o),
             None => Err(RuntimeError::EmptyStackError),
+        }
+    }
+
+    pub fn peek(&self) -> Result<&Op, RuntimeError> {
+        match self.ops.last() {
+            Some(o) => Ok(o),
+            None => Err(RuntimeError::EmptyStackError)
         }
     }
 }
