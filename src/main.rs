@@ -69,6 +69,10 @@ fn eval(ops: Vec<Op>) -> Result<i64> {
                 let y = stack.pop()?;
                 stack.push(x.div(y)?);
             }
+            Op::Print => {
+                let x = stack.pop()?;
+                x.print()?;
+            }
         }
     }
 

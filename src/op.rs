@@ -8,54 +8,61 @@ pub enum Op {
     Sub,
     Mul,
     Div,
+    Print,
 }
 
 impl Op {
     pub fn add(self, other: Op) -> Result<Op, RuntimeError> {
-        if let Op::Int { val: y } = self {
-            if let Op::Int { val: x } = other {
-                Ok(Op::Int { val: x + y })
-            } else {
-                Err(RuntimeError::InvalidAdd)
-            }
-        } else {
-            Err(RuntimeError::InvalidAdd)
+        match self {
+            Op::Int { val: y } => match other {
+                Op::Int { val: x } => Ok(Op::Int { val: x + y }),
+                _ => Err(RuntimeError::InvalidAdd),
+            },
+            Op::String { val: y } => match other {
+                Op::String { val: x } => Ok(Op::String {
+                    val: format!("{}{}", x, y),
+                }),
+                _ => Err(RuntimeError::InvalidAdd),
+            },
+            _ => Err(RuntimeError::InvalidAdd),
         }
     }
 
     pub fn sub(self, other: Op) -> Result<Op, RuntimeError> {
-        if let Op::Int { val: y } = self {
-            if let Op::Int { val: x } = other {
-                Ok(Op::Int { val: x - y })
-            } else {
-                Err(RuntimeError::InvalidSub)
-            }
-        } else {
-            Err(RuntimeError::InvalidSub)
+        match self {
+            Op::Int { val: y } => match other {
+                Op::Int { val: x } => Ok(Op::Int { val: x - y }),
+                _ => Err(RuntimeError::InvalidSub),
+            },
+            _ => Err(RuntimeError::InvalidSub),
         }
     }
 
     pub fn mul(self, other: Op) -> Result<Op, RuntimeError> {
-        if let Op::Int { val: y } = self {
-            if let Op::Int { val: x } = other {
-                Ok(Op::Int { val: x * y })
-            } else {
-                Err(RuntimeError::InvalidMul)
-            }
-        } else {
-            Err(RuntimeError::InvalidMul)
+        match self {
+            Op::Int { val: y } => match other {
+                Op::Int { val: x } => Ok(Op::Int { val: x - y }),
+                _ => Err(RuntimeError::InvalidMul),
+            },
+            _ => Err(RuntimeError::InvalidMul),
         }
     }
 
     pub fn div(self, other: Op) -> Result<Op, RuntimeError> {
-        if let Op::Int { val: y } = self {
-            if let Op::Int { val: x } = other {
-                Ok(Op::Int { val: x / y })
-            } else {
-                Err(RuntimeError::InvalidDiv)
-            }
-        } else {
-            Err(RuntimeError::InvalidDiv)
+        match self {
+            Op::Int { val: y } => match other {
+                Op::Int { val: x } => Ok(Op::Int { val: x - y }),
+                _ => Err(RuntimeError::InvalidDiv),
+            },
+            _ => Err(RuntimeError::InvalidDiv),
+        }
+    }
+
+    pub fn print(self) -> Result<(), RuntimeError> {
+        match self {
+            Op::Int { val } => Ok(println!("{}", val)),
+            Op::String { val } => Ok(println!("{}", val)),
+            _ => Err(RuntimeError::InvalidPrint),
         }
     }
 }

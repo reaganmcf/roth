@@ -34,7 +34,7 @@ impl<'a> Lexer<'a> {
 
     fn create_token(
         &self,
-        raw_token: String,
+        mut raw_token: String,
         start: usize,
         end: usize,
     ) -> Result<Token, ParseError> {
@@ -43,9 +43,13 @@ impl<'a> Lexer<'a> {
             "-" => Ok(TokenKind::Sub),
             "*" => Ok(TokenKind::Mul),
             "/" => Ok(TokenKind::Div),
+            "print" => Ok(TokenKind::Print),
             _ => {
                 if raw_token.starts_with("\"") {
                     if raw_token.ends_with("\"") {
+                        // remove leading and trailing quotation marks
+                        raw_token.remove(0);
+                        raw_token.remove(raw_token.len() - 1);
                         Ok(TokenKind::String)
                     } else {
                         Err(ParseError::UnterminatedStringLiteral)

@@ -22,6 +22,7 @@ impl Parser {
                 TokenKind::Sub => Op::Sub,
                 TokenKind::Mul => Op::Mul,
                 TokenKind::Div => Op::Div,
+                TokenKind::Print => Op::Print,
                 TokenKind::Number => match token.inner.parse::<i64>() {
                     Ok(v) => Op::Int { val: v },
                     Err(_) => unreachable!("number wasn't actually number???"),
@@ -30,9 +31,7 @@ impl Parser {
             };
 
             ops.push(op);
-            print!("{:#?} ", token);
         }
-        print!("\n");
 
         Ok(ops)
     }

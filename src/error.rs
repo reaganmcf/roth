@@ -36,4 +36,8 @@ pub enum RuntimeError {
     #[error("Can't divide these types")]
     #[diagnostic(code(roth::invalid_div))]
     InvalidDiv,
+
+    #[error("Can only use `print` on value types")]
+    #[diagnostic(code(roth::invalid_print))]
+    InvalidPrint,
 }

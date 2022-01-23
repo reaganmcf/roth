@@ -36,4 +36,7 @@ pub enum TokenKind {
 
     // ".+"
     String,
+
+    // 'print'
+    Print
 }
