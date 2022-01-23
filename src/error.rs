@@ -1,5 +1,12 @@
-use thiserror::Error;
 use miette::Diagnostic;
+use thiserror::Error;
+
+#[derive(Error, Debug, Diagnostic)]
+pub enum ParseError {
+    #[error("unknown token")]
+    #[diagnostic(code(roth::unknown_token))]
+    UnkownToken,
+}
 
 #[derive(Error, Debug, Diagnostic)]
 pub enum RuntimeError {
@@ -23,4 +30,3 @@ pub enum RuntimeError {
     #[diagnostic(code(roth::invalid_div))]
     InvalidDiv,
 }
-

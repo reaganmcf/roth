@@ -1,12 +1,17 @@
 mod error;
+mod lexer;
 mod op;
+mod parser;
 mod stack;
+mod token;
 
-use reedline::{DefaultPrompt, Reedline, Signal};
 use miette::Result;
+use reedline::{DefaultPrompt, Reedline, Signal};
 use std::process;
 
+use lexer::Lexer;
 use op::Op;
+use parser::Parser;
 use stack::Stack;
 
 fn main() -> Result<()> {
@@ -21,8 +26,9 @@ fn main() -> Result<()> {
                     process::exit(0);
                 }
 
-                let parse = parse(buffer);
-                let result = eval(parse)?;
+                let tokens = Lexer::new(buffer.as_str()).lex()?;
+                let ops = Parser::new(tokens).parse()?;
+                let result = eval(ops)?;
                 println!("Result: {}", result);
             }
             Signal::CtrlD | Signal::CtrlC => {
@@ -34,34 +40,6 @@ fn main() -> Result<()> {
             }
         }
     }
-}
-
-fn parse(buffer: String) -> Vec<Op> {
-    // Split on whitespace
-    let tokens: Vec<&str> = buffer.split_whitespace().collect();
-    let mut ops = Vec::new();
-
-    for token in tokens {
-        let op = if let Ok(n) = token.parse::<i64>() {
-            Op::Int { val: n }
-        } else if token.eq("add") {
-            Op::Add
-        } else if token.eq("sub") {
-            Op::Sub
-        } else if token.eq("mul") {
-            Op::Mul
-        } else if token.eq("div") {
-            Op::Div
-        } else {
-            unreachable!("Unknown token: {}", token)
-        };
-
-        ops.push(op);
-        print!("{} ", token);
-    }
-    print!("\n");
-
-    return ops;
 }
 
 fn eval(ops: Vec<Op>) -> Result<i64> {
@@ -100,8 +78,8 @@ fn eval(ops: Vec<Op>) -> Result<i64> {
     match stack.pop() {
         Ok(e) => match e {
             Op::Int { val } => Ok(val),
-            _ => Ok(default)
+            _ => Ok(default),
         },
-        Err(_) => Ok(default)
+        Err(_) => Ok(default),
     }
 }
