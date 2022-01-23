@@ -23,11 +23,15 @@ impl Parser {
                 TokenKind::Mul => Op::Mul,
                 TokenKind::Div => Op::Div,
                 TokenKind::Print => Op::Print,
+                TokenKind::String => Op::String {val: token.inner.clone() },
                 TokenKind::Number => match token.inner.parse::<i64>() {
                     Ok(v) => Op::Int { val: v },
-                    Err(_) => unreachable!("number wasn't actually number???"),
+                    Err(_) => unreachable!("number wasn't actually a number???"),
                 },
-                TokenKind::String => Op::String {val: token.inner.clone() }
+                TokenKind::Boolean => match token.inner.parse::<bool>() {
+                    Ok(v) => Op::Boolean { val: v},
+                    Err(_) => unreachable!("bool wasn't actually a boolean???")
+                }
             };
 
             ops.push(op);

@@ -56,6 +56,8 @@ impl<'a> Lexer<'a> {
                     }
                 } else if raw_token.parse::<i64>().is_ok() {
                     Ok(TokenKind::Number)
+                } else if raw_token.parse::<bool>().is_ok() {
+                    Ok(TokenKind::Boolean)
                 } else {
                     Err(ParseError::UnkownToken(
                         self.raw_source.to_string(),

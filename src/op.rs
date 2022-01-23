@@ -4,6 +4,7 @@ use crate::error::RuntimeError;
 pub enum Op {
     Int { val: i64 },
     String { val: String },
+    Boolean { val: bool },
     Add,
     Sub,
     Mul,
@@ -62,6 +63,7 @@ impl Op {
         match self {
             Op::Int { val } => Ok(println!("{}", val)),
             Op::String { val } => Ok(println!("{}", val)),
+            Op::Boolean { val } => Ok(println!("{}", val)),
             _ => Err(RuntimeError::InvalidPrint),
         }
     }

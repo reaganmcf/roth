@@ -47,8 +47,10 @@ fn eval(ops: Vec<Op>) -> Result<i64> {
 
     for op in ops.into_iter() {
         match op {
+            // TODO: we are deconstructing and reconstructing the same object lol
             Op::Int { val } => stack.push(Op::Int { val }),
             Op::String { val } => stack.push(Op::String { val }),
+            Op::Boolean { val } => stack.push(Op::Boolean { val }),
             Op::Add => {
                 let x = stack.pop()?;
                 let y = stack.pop()?;
