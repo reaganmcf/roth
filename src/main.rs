@@ -90,6 +90,11 @@ fn eval(ops: Vec<Op>) -> Result<i64> {
                 let val = stack.pop()?;
                 stack.push(val.not()?);
             }
+            Op::Eq => {
+                let x = stack.pop()?;
+                let y = stack.pop()?;
+                stack.push(x.eq(y)?);
+            }
         }
     }
 

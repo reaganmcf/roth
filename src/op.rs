@@ -122,7 +122,7 @@ impl Op {
             InvalidEq,
             (Int, Int, |x, y| Op::Boolean { val: x == y }),
             (String, String, |x, y| Op::Boolean { val: x == y }),
-            (String, String, |x, y| Op::Boolean { val: x == y })
+            (Boolean, Boolean, |x, y| Op::Boolean { val: x == y })
         );
         Err(RuntimeError::InvalidEq)
     }

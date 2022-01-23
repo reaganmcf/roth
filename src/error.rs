@@ -51,5 +51,9 @@ pub enum RuntimeError {
 
     #[error("Can't not this types")]
     #[diagnostic(code(roth::invalid_not))]
-    InvalidNot
+    InvalidNot,
+
+    #[error("Can't eq these types")]
+    #[diagnostic(code(roth::invalid_not))]
+    InvalidEq
 }

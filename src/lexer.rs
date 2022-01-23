@@ -47,6 +47,7 @@ impl<'a> Lexer<'a> {
             "or" => Ok(TokenKind::Or),
             "and" => Ok(TokenKind::And),
             "not" => Ok(TokenKind::Not),
+            "eq" => Ok(TokenKind::Eq),
             _ => {
                 if raw_token.starts_with("\"") {
                     if raw_token.ends_with("\"") {

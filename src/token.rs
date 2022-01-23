@@ -50,5 +50,8 @@ pub enum TokenKind {
     And,
 
     // 'not'
-    Not
+    Not,
+
+    // 'eq'
+    Eq
 }
