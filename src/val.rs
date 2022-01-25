@@ -33,8 +33,6 @@ macro_rules! handlers {
         }
     };
 
-    //Err(RuntimeError::InvalidAdd(source, self.span, other.span))
-
     ($self:ident, $other:ident, $src:ident, $err:ident, ($t1:ident, $t2:ident, $op: expr), $(($ot1:ident, $ot2:ident, $oop:expr)),+) => {
         handlers!($self, $other, $src, $err, ($t1, $t2, $op));
         handlers!($self, $other, $src, $err, $(($ot1, $ot2, $oop)),+);
