@@ -47,10 +47,10 @@ impl<'a> Lexer<'a> {
             "and" => Ok(TokenKind::And),
             "not" => Ok(TokenKind::Not),
             "eq" => Ok(TokenKind::Eq),
-            ">" => Ok(TokenKind::LessThan),
-            "<" => Ok(TokenKind::GreaterThan),
-            ">=" => Ok(TokenKind::LessThanEq),
-            "<=" => Ok(TokenKind::GreaterThanEq),
+            "<" => Ok(TokenKind::LessThan),
+            ">" => Ok(TokenKind::GreaterThan),
+            "<=" => Ok(TokenKind::LessThanEq),
+            ">=" => Ok(TokenKind::GreaterThanEq),
             _ => {
                 if raw_token.starts_with('\"') {
                     if raw_token.ends_with('\"') {
