@@ -4,10 +4,12 @@ mod op;
 mod parser;
 mod stack;
 mod token;
+mod val;
 
 use miette::Result;
 use reedline::{DefaultPrompt, Reedline, Signal};
 use std::process;
+use val::Val;
 
 use lexer::Lexer;
 use op::Op;
@@ -44,12 +46,14 @@ fn main() -> Result<()> {
     }
 }
 
-fn eval(ops: Vec<Op>) -> Result<Option<Op>> {
+fn eval(ops: Vec<Op>) -> Result<Option<Val>> {
     let mut stack = Stack::new();
 
     for op in ops.into_iter() {
         match op {
-            Op::Int{..} | Op::String{..} | Op::Boolean{..} => stack.push(op),
+            Op::PushInt { val: v } => stack.push(Val::Int { val: v }),
+            Op::PushString { val: v } => stack.push(Val::String { val: v }),
+            Op::PushBoolean { val: v } => stack.push(Val::Boolean { val: v }),
             Op::Add => {
                 let x = stack.pop()?;
                 let y = stack.pop()?;
@@ -73,7 +77,7 @@ fn eval(ops: Vec<Op>) -> Result<Option<Op>> {
             Op::Print => {
                 // Print doesn't mutate the stack, so we peek instead of pop
                 let x = stack.peek()?;
-                x.print()?;
+                x.print();
             }
             Op::Or => {
                 let x = stack.pop()?;

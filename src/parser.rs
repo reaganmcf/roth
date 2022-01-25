@@ -31,14 +31,14 @@ impl Parser {
                 TokenKind::GreaterThan => Op::GreaterThan,
                 TokenKind::LessThanEq => Op::LessThanEq,
                 TokenKind::GreaterThanEq => Op::GreaterThanEq,
-                TokenKind::String => Op::String {val: token.inner.clone() },
+                TokenKind::String => Op::PushString {val: token.inner.clone() },
                 TokenKind::Number => match token.inner.parse::<i64>() {
-                    Ok(v) => Op::Int { val: v },
-                    Err(_) => unreachable!("number wasn't actually a number???"),
+                    Ok(v) => Op::PushInt { val: v },
+                    Err(_) => unreachable!("Lexer said it was a number, but it can't be parsed as one"),
                 },
                 TokenKind::Boolean => match token.inner.parse::<bool>() {
-                    Ok(v) => Op::Boolean { val: v},
-                    Err(_) => unreachable!("bool wasn't actually a boolean???")
+                    Ok(v) => Op::PushBoolean { val: v},
+                    Err(_) => unreachable!("Lexer said it was a boolean, but it can't be parsed as one")
                 }
             };
 

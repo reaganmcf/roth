@@ -1,33 +1,33 @@
-use crate::{error::RuntimeError, op::Op};
+use crate::{error::RuntimeError, val::Val};
 
 #[derive(Debug)]
 pub struct Stack {
-    ops: Vec<Op>,
+    vals: Vec<Val>
 }
 
 impl Stack {
     pub fn new() -> Self {
-        Self { ops: Vec::new() }
+        Self { vals: Vec::new() }
     }
 
     pub fn is_empty(&self) -> bool {
-        self.ops.is_empty()
+        self.vals.is_empty()
     }
 
-    pub fn push(&mut self, op: Op) {
-        self.ops.push(op);
+    pub fn push(&mut self, val: Val) {
+        self.vals.push(val);
     }
 
-    pub fn pop(&mut self) -> Result<Op, RuntimeError> {
-        match self.ops.pop() {
-            Some(o) => Ok(o),
+    pub fn pop(&mut self) -> Result<Val, RuntimeError> {
+        match self.vals.pop() {
+            Some(v) => Ok(v),
             None => Err(RuntimeError::EmptyStackError),
         }
     }
 
-    pub fn peek(&self) -> Result<&Op, RuntimeError> {
-        match self.ops.last() {
-            Some(o) => Ok(o),
+    pub fn peek(&self) -> Result<&Val, RuntimeError> {
+        match self.vals.last() {
+            Some(v) => Ok(v),
             None => Err(RuntimeError::EmptyStackError)
         }
     }

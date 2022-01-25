@@ -2,7 +2,7 @@ use crate::{
     error::ParseError,
     token::{Token, TokenKind},
 };
-use miette::{NamedSource, Result};
+use miette::Result;
 use std::collections::VecDeque;
 
 pub struct Lexer<'a> {
