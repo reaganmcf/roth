@@ -106,32 +106,35 @@ fn eval(ops: Vec<Op>, source: String) -> Result<Option<Val>> {
 
                 stack.push(val.not(&source, op.span)?);
             }
-            _ => unreachable!("temp"),
-            //Op::Eq => {
-            //    let x = stack.pop()?;
-            //    let y = stack.pop()?;
-            //    stack.push(x.eq(y)?);
-            //}
-            //Op::LessThan => {
-            //    let x = stack.pop()?;
-            //    let y = stack.pop()?;
-            //    stack.push(x.lt(y)?);
-            //}
-            //Op::GreaterThan => {
-            //    let x = stack.pop()?;
-            //    let y = stack.pop()?;
-            //    stack.push(x.gt(y)?);
-            //}
-            //Op::LessThanEq => {
-            //    let x = stack.pop()?;
-            //    let y = stack.pop()?;
-            //    stack.push(x.lte(y)?);
-            //}
-            //Op::GreaterThanEq => {
-            //    let x = stack.pop()?;
-            //    let y = stack.pop()?;
-            //    stack.push(x.gte(y)?);
-            //}
+            OpKind::Eq => {
+                let y = stack.pop()?;
+                let x = stack.pop()?;
+
+                stack.push(x.eq(y, &source, op.span)?);
+            }
+            OpKind::LessThan => {
+                let y = stack.pop()?;
+                let x = stack.pop()?;
+
+                stack.push(x.lt(y, &source, op.span)?);
+            }
+            OpKind::GreaterThan => {
+                let y = stack.pop()?;
+                let x = stack.pop()?;
+
+                stack.push(x.gt(y, &source, op.span)?);
+            }
+            OpKind::LessThanEq => {
+                let y = stack.pop()?;
+                let x = stack.pop()?;
+
+                stack.push(x.lte(y, &source, op.span)?);
+            }
+            OpKind::GreaterThanEq => {
+                let y = stack.pop()?;
+                let x = stack.pop()?;
+                stack.push(x.gte(y, &source, op.span)?);
+            }
         }
     }
 

@@ -62,7 +62,7 @@ impl Val {
     pub fn add(
         self,
         other: Self,
-        source: &String,
+        source: &str,
         op_span: SourceSpan,
     ) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
@@ -93,7 +93,7 @@ impl Val {
     pub fn sub(
         self,
         other: Self,
-        source: &String,
+        source: &str,
         op_span: SourceSpan,
     ) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
@@ -117,7 +117,7 @@ impl Val {
     pub fn mul(
         self,
         other: Self,
-        source: &String,
+        source: &str,
         op_span: SourceSpan,
     ) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
@@ -142,7 +142,7 @@ impl Val {
     pub fn div(
         self,
         other: Self,
-        source: &String,
+        source: &str,
         op_span: SourceSpan,
     ) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
@@ -171,7 +171,7 @@ impl Val {
     pub fn or(
         self,
         other: Self,
-        source: &String,
+        source: &str,
         op_span: SourceSpan,
     ) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
@@ -195,7 +195,7 @@ impl Val {
     pub fn and(
         self,
         other: Self,
-        source: &String,
+        source: &str,
         op_span: SourceSpan,
     ) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
@@ -216,7 +216,7 @@ impl Val {
         ))
     }
 
-    pub fn not(self, source: &String, op_span: SourceSpan) -> Result<Self, RuntimeError> {
+    pub fn not(self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         match self.kind {
             ValKind::Boolean { val } => Ok(Val::new(merged_span, ValKind::Boolean { val: !val })),
@@ -224,59 +224,147 @@ impl Val {
         }
     }
 
-    //pub fn eq(self, other: Self) -> Result<Self, RuntimeError> {
-    //    handlers!(
-    //        self,
-    //        other,
-    //        InvalidEq,
-    //        (Int, Int, |x, y| Self::Boolean { val: x == y }),
-    //        (String, String, |x, y| Self::Boolean { val: x == y }),
-    //        (Boolean, Boolean, |x, y| Self::Boolean { val: x == y })
-    //    );
-    //    Err(RuntimeError::InvalidEq)
-    //}
+    pub fn eq(
+        self,
+        other: Self,
+        source: &str,
+        op_span: SourceSpan,
+    ) -> Result<Self, RuntimeError> {
+        let merged_span = self.merge_spans(op_span);
+        handlers!(
+            self,
+            other,
+            source,
+            InvalidEq,
+            (Int, Int, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x == y }
+            )),
+            (String, String, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x == y }
+            )),
+            (Boolean, Boolean, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x == y }
+            ))
+        );
+        Err(RuntimeError::InvalidEq(
+            source.to_string(),
+            self.span,
+            other.span,
+        ))
+    }
 
-    //pub fn lt(self, other: Self) -> Result<Self, RuntimeError> {
-    //    handlers!(
-    //        self,
-    //        other,
-    //        InvalidLessThan,
-    //        (Int, Int, |x, y| Self::Boolean { val: x < y }),
-    //        (String, String, |x, y| Self::Boolean { val: x < y })
-    //    );
-    //    Err(RuntimeError::InvalidLessThan)
-    //}
+    pub fn lt(
+        self,
+        other: Self,
+        source: &str,
+        op_span: SourceSpan,
+    ) -> Result<Self, RuntimeError> {
+        let merged_span = self.merge_spans(op_span);
+        handlers!(
+            self,
+            other,
+            source,
+            InvalidLessThan,
+            (Int, Int, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x < y }
+            )),
+            (String, String, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x < y }
+            ))
+        );
+        Err(RuntimeError::InvalidLessThan(
+            source.to_string(),
+            self.span,
+            other.span,
+        ))
+    }
 
-    //pub fn gt(self, other: Self) -> Result<Self, RuntimeError> {
-    //    handlers!(
-    //        self,
-    //        other,
-    //        InvalidGreaterThan,
-    //        (Int, Int, |x, y| Self::Boolean { val: x > y }),
-    //        (String, String, |x, y| Self::Boolean { val: x > y })
-    //    );
-    //    Err(RuntimeError::InvalidGreaterThan)
-    //}
+    pub fn gt(
+        self,
+        other: Self,
+        source: &str,
+        op_span: SourceSpan,
+    ) -> Result<Self, RuntimeError> {
+        let merged_span = self.merge_spans(op_span);
+        handlers!(
+            self,
+            other,
+            source,
+            InvalidGreaterThan,
+            (Int, Int, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x > y }
+            )),
+            (String, String, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x > y }
+            ))
+        );
+        Err(RuntimeError::InvalidGreaterThan(
+            source.to_string(),
+            self.span,
+            other.span,
+        ))
+    }
 
-    //pub fn lte(self, other: Self) -> Result<Self, RuntimeError> {
-    //    handlers!(
-    //        self,
-    //        other,
-    //        InvalidLessThanEq,
-    //        (Int, Int, |x, y| Self::Boolean { val: x <= y }),
-    //        (String, String, |x, y| Self::Boolean { val: x <= y })
-    //    );
-    //    Err(RuntimeError::InvalidLessThanEq)
-    //}
+    pub fn lte(
+        self,
+        other: Self,
+        source: &str,
+        op_span: SourceSpan,
+    ) -> Result<Self, RuntimeError> {
+        let merged_span = self.merge_spans(op_span);
+        handlers!(
+            self,
+            other,
+            source,
+            InvalidLessThanEq,
+            (Int, Int, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x <= y }
+            )),
+            (String, String, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x <= y }
+            ))
+        );
+        Err(RuntimeError::InvalidLessThanEq(
+            source.to_string(),
+            self.span,
+            other.span,
+        ))
+    }
 
-    //pub fn gte(self, other: Self) -> Result<Self, RuntimeError> {
-    //    handlers!(
-    //        self,
-    //        other,
-    //        InvalidGreaterThanEq,
-    //        (Int, Int, |x, y| Self::Boolean { val: x >= y }),
-    //        (String, String, |x, y| Self::Boolean { val: x >= y })
-    //    );
-    //    Err(RuntimeError::InvalidGreaterThanEq)
-    //}
+    pub fn gte(
+        self,
+        other: Self,
+        source: &str,
+        op_span: SourceSpan,
+    ) -> Result<Self, RuntimeError> {
+        let merged_span = self.merge_spans(op_span);
+        handlers!(
+            self,
+            other,
+            source,
+            InvalidGreaterThanEq,
+            (Int, Int, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x >= y }
+            )),
+            (String, String, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x >= y }
+            ))
+        );
+        Err(RuntimeError::InvalidGreaterThanEq(
+            source.to_string(),
+            self.span,
+            other.span,
+        ))
+    }
 }

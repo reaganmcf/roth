@@ -66,27 +66,47 @@ pub enum RuntimeError {
         #[label("with that value")] SourceSpan,
     ),
 
-    #[error("Can't not this type")]
+    #[error("Can't logical not this type")]
     #[diagnostic(code(roth::invalid_not))]
     InvalidNot(#[source_code] String, #[label("this value")] SourceSpan),
 
     #[error("Can't eq these types")]
-    #[diagnostic(code(roth::invalid_not))]
-    InvalidEq,
+    #[diagnostic(code(roth::invalid_eq))]
+    InvalidEq(
+        #[source_code] String,
+        #[label("this value")] SourceSpan,
+        #[label("with that value")] SourceSpan,
+    ),
 
     #[error("Can't '<' these types")]
     #[diagnostic(code(roth::invalid_less_than))]
-    InvalidLessThan,
+    InvalidLessThan(
+        #[source_code] String,
+        #[label("this value")] SourceSpan,
+        #[label("with that value")] SourceSpan,
+    ),
 
     #[error("Can't '>' these types")]
     #[diagnostic(code(roth::invalid_greater_than))]
-    InvalidGreaterThan,
+    InvalidGreaterThan(
+        #[source_code] String,
+        #[label("this value")] SourceSpan,
+        #[label("with that value")] SourceSpan,
+    ),
 
     #[error("Can't '<=' these types")]
     #[diagnostic(code(roth::invalid_less_than_eq))]
-    InvalidLessThanEq,
+    InvalidLessThanEq(
+        #[source_code] String,
+        #[label("this value")] SourceSpan,
+        #[label("with that value")] SourceSpan,
+    ),
 
     #[error("Can't '>=' these types")]
     #[diagnostic(code(roth::invalid_greater_than_eq))]
-    InvalidGreaterThanEq,
+    InvalidGreaterThanEq(
+        #[source_code] String,
+        #[label("this value")] SourceSpan,
+        #[label("with that value")] SourceSpan,
+    ),
 }
