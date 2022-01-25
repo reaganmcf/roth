@@ -1,19 +1,13 @@
 #[derive(Debug, PartialEq, Eq)]
 pub struct Token {
     pub start: usize,
-    pub end: usize,
     pub inner: String,
     pub kind: TokenKind,
 }
 
 impl Token {
-    pub fn new(inner: String, start: usize, end: usize, kind: TokenKind) -> Self {
-        Self {
-            start,
-            end,
-            inner,
-            kind,
-        }
+    pub fn new(inner: String, start: usize, kind: TokenKind) -> Self {
+        Self { start, inner, kind }
     }
 }
 
@@ -39,7 +33,7 @@ pub enum TokenKind {
 
     // '/'
     Div,
-    
+
     // 'print'
     Print,
 
@@ -63,7 +57,7 @@ pub enum TokenKind {
 
     // <=
     LessThanEq,
-    
+
     // >=
     GreaterThanEq,
 }

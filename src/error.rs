@@ -5,10 +5,7 @@ use thiserror::Error;
 pub enum ParseError {
     #[error("unknown token")]
     #[diagnostic(code(roth::unknown_token))]
-    UnkownToken(
-        #[source_code] String,
-        #[label("Unknown token")] SourceSpan,
-    ),
+    UnkownToken(#[source_code] String, #[label("Unknown token")] SourceSpan),
 
     #[error("unterminated string literal")]
     #[diagnostic(code(roth::unterminated_string))]
@@ -23,11 +20,19 @@ pub enum RuntimeError {
 
     #[error("Can't add these types")]
     #[diagnostic(code(roth::invalid_add))]
-    InvalidAdd,
+    InvalidAdd(
+        #[source_code] String,
+        #[label("this value")] SourceSpan,
+        #[label("with that value")] SourceSpan,
+    ),
 
     #[error("Can't subtract these types")]
     #[diagnostic(code(roth::invalid_sub))]
-    InvalidSub,
+    InvalidSub(
+        #[source_code] String,
+        #[label("this value")] SourceSpan,
+        #[label("from that value")] SourceSpan,
+    ),
 
     #[error("Can't multiply these types")]
     #[diagnostic(code(roth::invalid_mul))]
@@ -68,5 +73,4 @@ pub enum RuntimeError {
     #[error("Can't '>=' these types")]
     #[diagnostic(code(roth::invalid_greater_than_eq))]
     InvalidGreaterThanEq,
-
 }

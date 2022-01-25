@@ -36,7 +36,6 @@ impl<'a> Lexer<'a> {
         &self,
         mut raw_token: String,
         start: usize,
-        end: usize,
     ) -> Result<Token, ParseError> {
         let kind = match raw_token.as_str() {
             "+" => Ok(TokenKind::Add),
@@ -75,7 +74,7 @@ impl<'a> Lexer<'a> {
             }
         }?;
 
-        Ok(Token::new(raw_token, start, end, kind))
+        Ok(Token::new(raw_token, start, kind))
     }
 
     pub fn lex(&mut self) -> Result<Vec<Token>> {
@@ -87,11 +86,9 @@ impl<'a> Lexer<'a> {
             while let Some(c) = self.source.pop_front() {
                 self.cursor += 1;
                 if c.is_whitespace() {
-                    let end = self.cursor;
-
                     // Gotta subtract one frm the end becuase we don't
                     // want to include whitespace in the Span
-                    let token = self.create_token(curr.clone(), start, end)?;
+                    let token = self.create_token(curr.clone(), start)?;
                     tokens.push(token);
                     curr.clear();
                     break;
@@ -104,9 +101,7 @@ impl<'a> Lexer<'a> {
             // Check if we have an unfinished token here
             // which can happen at the end of the file
             if !curr.is_empty() {
-                let end = self.cursor;
-
-                let token = self.create_token(curr.clone(), start, end)?;
+                let token = self.create_token(curr.clone(), start)?;
                 tokens.push(token);
                 curr.clear();
             }
@@ -132,9 +127,9 @@ mod tests {
         let actual = lexer.lex().unwrap();
 
         let expected = vec![
-            Token::new("1".into(), 0, 1, TokenKind::Number),
-            Token::new("2".into(), 2, 3, TokenKind::Number),
-            Token::new("+".into(), 4, 5, TokenKind::Add),
+            Token::new("1".into(), 0, TokenKind::Number),
+            Token::new("2".into(), 2, TokenKind::Number),
+            Token::new("+".into(), 4, TokenKind::Add),
         ];
 
         assert_eq!(actual, expected);
