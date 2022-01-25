@@ -64,74 +64,74 @@ fn eval(ops: Vec<Op>, source: String) -> Result<Option<Val>> {
                 let y = stack.pop()?;
                 let x = stack.pop()?;
 
-                stack.push(x.add(y, source.clone(), op.span)?);
+                stack.push(x.add(y, &source, op.span)?);
             }
             OpKind::Sub => {
                 let y = stack.pop()?;
                 let x = stack.pop()?;
 
-                stack.push(x.sub(y, source.clone(), op.span)?);
+                stack.push(x.sub(y, &source, op.span)?);
             }
+            OpKind::Mul => {
+                let y = stack.pop()?;
+                let x = stack.pop()?;
 
-            _ => unreachable!("temp"), //Op::Sub => {
-                                       //    let x = stack.pop()?;
-                                       //    let y = stack.pop()?;
-                                       //    stack.push(x.sub(y)?);
-                                       //}
-                                       //Op::Mul => {
-                                       //    let x = stack.pop()?;
-                                       //    let y = stack.pop()?;
-                                       //    stack.push(x.mul(y)?);
-                                       //}
-                                       //Op::Div => {
-                                       //    let x = stack.pop()?;
-                                       //    let y = stack.pop()?;
-                                       //    stack.push(x.div(y)?);
-                                       //}
-                                       //Op::Print => {
-                                       //    // Print doesn't mutate the stack, so we peek instead of pop
-                                       //    let x = stack.peek()?;
-                                       //    x.print();
-                                       //}
-                                       //Op::Or => {
-                                       //    let x = stack.pop()?;
-                                       //    let y = stack.pop()?;
-                                       //    stack.push(x.or(y)?);
-                                       //}
-                                       //Op::And => {
-                                       //    let x = stack.pop()?;
-                                       //    let y = stack.pop()?;
-                                       //    stack.push(x.and(y)?);
-                                       //}
-                                       //Op::Not => {
-                                       //    let val = stack.pop()?;
-                                       //    stack.push(val.not()?);
-                                       //}
-                                       //Op::Eq => {
-                                       //    let x = stack.pop()?;
-                                       //    let y = stack.pop()?;
-                                       //    stack.push(x.eq(y)?);
-                                       //}
-                                       //Op::LessThan => {
-                                       //    let x = stack.pop()?;
-                                       //    let y = stack.pop()?;
-                                       //    stack.push(x.lt(y)?);
-                                       //}
-                                       //Op::GreaterThan => {
-                                       //    let x = stack.pop()?;
-                                       //    let y = stack.pop()?;
-                                       //    stack.push(x.gt(y)?);
-                                       //}
-                                       //Op::LessThanEq => {
-                                       //    let x = stack.pop()?;
-                                       //    let y = stack.pop()?;
-                                       //    stack.push(x.lte(y)?);
-                                       //}
-                                       //Op::GreaterThanEq => {
-                                       //    let x = stack.pop()?;
-                                       //    let y = stack.pop()?;
-                                       //    stack.push(x.gte(y)?);
-                                       //}
+                stack.push(x.mul(y, &source, op.span)?);
+            }
+            OpKind::Div => {
+                let y = stack.pop()?;
+                let x = stack.pop()?;
+
+                stack.push(x.div(y, &source, op.span)?);
+            }
+            OpKind::Print => {
+                // Print doesn't mutate the stack, so we peek instead of pop
+                let x = stack.peek()?;
+                x.print();
+            }
+            OpKind::Or => {
+                let y = stack.pop()?;
+                let x = stack.pop()?;
+
+                stack.push(x.or(y, &source, op.span)?);
+            }
+            OpKind::And => {
+                let y = stack.pop()?;
+                let x = stack.pop()?;
+
+                stack.push(x.and(y, &source, op.span)?);
+            }
+            OpKind::Not => {
+                let val = stack.pop()?;
+
+                stack.push(val.not(&source, op.span)?);
+            }
+            _ => unreachable!("temp"),
+            //Op::Eq => {
+            //    let x = stack.pop()?;
+            //    let y = stack.pop()?;
+            //    stack.push(x.eq(y)?);
+            //}
+            //Op::LessThan => {
+            //    let x = stack.pop()?;
+            //    let y = stack.pop()?;
+            //    stack.push(x.lt(y)?);
+            //}
+            //Op::GreaterThan => {
+            //    let x = stack.pop()?;
+            //    let y = stack.pop()?;
+            //    stack.push(x.gt(y)?);
+            //}
+            //Op::LessThanEq => {
+            //    let x = stack.pop()?;
+            //    let y = stack.pop()?;
+            //    stack.push(x.lte(y)?);
+            //}
+            //Op::GreaterThanEq => {
+            //    let x = stack.pop()?;
+            //    let y = stack.pop()?;
+            //    stack.push(x.gte(y)?);
+            //}
         }
     }
 

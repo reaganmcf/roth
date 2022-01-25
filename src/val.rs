@@ -28,7 +28,7 @@ macro_rules! handlers {
             if let ValKind::$t2 { val: y } = $other.kind {
                 return Ok($op(x,y))
             } else {
-                return Err(RuntimeError::$err($src, $self.span, $other.span));
+                return Err(RuntimeError::$err($src.to_string(), $self.span, $other.span));
             }
         }
     };
@@ -62,7 +62,7 @@ impl Val {
     pub fn add(
         self,
         other: Self,
-        source: String,
+        source: &String,
         op_span: SourceSpan,
     ) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
@@ -83,13 +83,17 @@ impl Val {
             ))
         );
 
-        Err(RuntimeError::InvalidAdd(source, self.span, other.span))
+        Err(RuntimeError::InvalidAdd(
+            source.to_string(),
+            self.span,
+            other.span,
+        ))
     }
 
     pub fn sub(
         self,
         other: Self,
-        source: String,
+        source: &String,
         op_span: SourceSpan,
     ) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
@@ -103,61 +107,122 @@ impl Val {
                 ValKind::Int { val: x - y }
             ))
         );
-        Err(RuntimeError::InvalidSub(source, self.span, other.span))
+        Err(RuntimeError::InvalidSub(
+            source.to_string(),
+            self.span,
+            other.span,
+        ))
     }
 
-    //pub fn mul(self, other: Self) -> Result<Self, RuntimeError> {
-    //    handlers!(
-    //        self,
-    //        other,
-    //        InvalidMul,
-    //        (Int, Int, |x, y| Self::Int { val: x * y })
-    //    );
+    pub fn mul(
+        self,
+        other: Self,
+        source: &String,
+        op_span: SourceSpan,
+    ) -> Result<Self, RuntimeError> {
+        let merged_span = self.merge_spans(op_span);
+        handlers!(
+            self,
+            other,
+            source,
+            InvalidMul,
+            (Int, Int, |x, y| Val::new(
+                merged_span,
+                ValKind::Int { val: x * y }
+            ))
+        );
 
-    //    Err(RuntimeError::InvalidMul)
-    //}
+        Err(RuntimeError::InvalidMul(
+            source.to_string(),
+            self.span,
+            other.span,
+        ))
+    }
 
-    //pub fn div(self, other: Self) -> Result<Self, RuntimeError> {
-    //    handlers!(
-    //        self,
-    //        other,
-    //        InvalidDiv,
-    //        (Int, Int, |x, y| Self::Int { val: x / y })
-    //    );
+    pub fn div(
+        self,
+        other: Self,
+        source: &String,
+        op_span: SourceSpan,
+    ) -> Result<Self, RuntimeError> {
+        let merged_span = self.merge_spans(op_span);
+        handlers!(
+            self,
+            other,
+            source,
+            InvalidDiv,
+            (Int, Int, |x, y| Val::new(
+                merged_span,
+                ValKind::Int { val: x / y }
+            ))
+        );
 
-    //    Err(RuntimeError::InvalidDiv)
-    //}
+        Err(RuntimeError::InvalidDiv(
+            source.to_string(),
+            self.span,
+            other.span,
+        ))
+    }
 
-    //pub fn print(&self) {
-    //    println!("{}", self);
-    //}
+    pub fn print(&self) {
+        println!("{}", self);
+    }
 
-    //pub fn or(self, other: Self) -> Result<Self, RuntimeError> {
-    //    handlers!(
-    //        self,
-    //        other,
-    //        InvalidOr,
-    //        (Boolean, Boolean, |x, y| Self::Boolean { val: x || y })
-    //    );
-    //    Err(RuntimeError::InvalidOr)
-    //}
+    pub fn or(
+        self,
+        other: Self,
+        source: &String,
+        op_span: SourceSpan,
+    ) -> Result<Self, RuntimeError> {
+        let merged_span = self.merge_spans(op_span);
+        handlers!(
+            self,
+            other,
+            source,
+            InvalidOr,
+            (Boolean, Boolean, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x || y }
+            ))
+        );
+        Err(RuntimeError::InvalidOr(
+            source.to_string(),
+            self.span,
+            other.span,
+        ))
+    }
 
-    //pub fn and(self, other: Self) -> Result<Self, RuntimeError> {
-    //    handlers!(
-    //        self,
-    //        other,
-    //        InvalidOr,
-    //        (Boolean, Boolean, |x, y| Self::Boolean { val: x && y })
-    //    );
-    //    Err(RuntimeError::InvalidAnd)
-    //}
+    pub fn and(
+        self,
+        other: Self,
+        source: &String,
+        op_span: SourceSpan,
+    ) -> Result<Self, RuntimeError> {
+        let merged_span = self.merge_spans(op_span);
+        handlers!(
+            self,
+            other,
+            source,
+            InvalidAnd,
+            (Boolean, Boolean, |x, y| Val::new(
+                merged_span,
+                ValKind::Boolean { val: x && y }
+            ))
+        );
+        Err(RuntimeError::InvalidAnd(
+            source.to_string(),
+            self.span,
+            other.span,
+        ))
+    }
 
-    //pub fn not(self) -> Result<Self, RuntimeError> {
-    //    match self {
-    //        Self::Boolean { val } => Ok(Self::Boolean { val: !val }),
-    //        _ => Err(RuntimeError::InvalidNot),
-    //    }
-    //}
+    pub fn not(self, source: &String, op_span: SourceSpan) -> Result<Self, RuntimeError> {
+        let merged_span = self.merge_spans(op_span);
+        match self.kind {
+            ValKind::Boolean { val } => Ok(Val::new(merged_span, ValKind::Boolean { val: !val })),
+            _ => Err(RuntimeError::InvalidNot(source.to_string(), self.span)),
+        }
+    }
 
     //pub fn eq(self, other: Self) -> Result<Self, RuntimeError> {
     //    handlers!(

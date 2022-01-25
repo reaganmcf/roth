@@ -36,23 +36,39 @@ pub enum RuntimeError {
 
     #[error("Can't multiply these types")]
     #[diagnostic(code(roth::invalid_mul))]
-    InvalidMul,
+    InvalidMul(
+        #[source_code] String,
+        #[label("this value")] SourceSpan,
+        #[label("with that value")] SourceSpan,
+    ),
 
     #[error("Can't divide these types")]
     #[diagnostic(code(roth::invalid_div))]
-    InvalidDiv,
+    InvalidDiv(
+        #[source_code] String,
+        #[label("this value")] SourceSpan,
+        #[label("by that value")] SourceSpan,
+    ),
 
-    #[error("Can't or these types")]
+    #[error("Can't logical or these types")]
     #[diagnostic(code(roth::invalid_or))]
-    InvalidOr,
+    InvalidOr(
+        #[source_code] String,
+        #[label("this value")] SourceSpan,
+        #[label("with that value")] SourceSpan,
+    ),
 
-    #[error("Can't and these types")]
+    #[error("Can't logical and these types")]
     #[diagnostic(code(roth::invalid_and))]
-    InvalidAnd,
+    InvalidAnd(
+        #[source_code] String,
+        #[label("this value")] SourceSpan,
+        #[label("with that value")] SourceSpan,
+    ),
 
-    #[error("Can't not this types")]
+    #[error("Can't not this type")]
     #[diagnostic(code(roth::invalid_not))]
-    InvalidNot,
+    InvalidNot(#[source_code] String, #[label("this value")] SourceSpan),
 
     #[error("Can't eq these types")]
     #[diagnostic(code(roth::invalid_not))]
