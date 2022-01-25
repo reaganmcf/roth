@@ -31,7 +31,6 @@ impl Display for Val {
             Self::Int { val } => write!(f, "{}", val),
             Self::String { val } => write!(f, "{}", val),
             Self::Boolean { val } => write!(f, "{}", val),
-            _ => write!(f, ""),
         }
     }
 }

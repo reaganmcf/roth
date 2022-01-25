@@ -23,7 +23,7 @@ impl<'a> Lexer<'a> {
     fn eat_trivia(&mut self) {
         let trivia: Vec<char> = vec![' ', '\n', '\t'];
         while let Some(c) = self.source.front() {
-            if trivia.contains(&c) {
+            if trivia.contains(c) {
                 self.source.pop_front();
                 self.cursor += 1;
             } else {
@@ -53,8 +53,8 @@ impl<'a> Lexer<'a> {
             ">=" => Ok(TokenKind::LessThanEq),
             "<=" => Ok(TokenKind::GreaterThanEq),
             _ => {
-                if raw_token.starts_with("\"") {
-                    if raw_token.ends_with("\"") {
+                if raw_token.starts_with('\"') {
+                    if raw_token.ends_with('\"') {
                         // remove leading and trailing quotation marks
                         raw_token.remove(0);
                         raw_token.remove(raw_token.len() - 1);
@@ -103,7 +103,7 @@ impl<'a> Lexer<'a> {
 
             // Check if we have an unfinished token here
             // which can happen at the end of the file
-            if curr.len() != 0 {
+            if !curr.is_empty() {
                 let end = self.cursor;
 
                 let token = self.create_token(curr.clone(), start, end)?;

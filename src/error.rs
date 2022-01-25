@@ -37,10 +37,6 @@ pub enum RuntimeError {
     #[diagnostic(code(roth::invalid_div))]
     InvalidDiv,
 
-    #[error("Can only use `print` on value types")]
-    #[diagnostic(code(roth::invalid_print))]
-    InvalidPrint,
-
     #[error("Can't or these types")]
     #[diagnostic(code(roth::invalid_or))]
     InvalidOr,
