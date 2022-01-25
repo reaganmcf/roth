@@ -10,6 +10,9 @@ impl Stack {
         Self { ops: Vec::new() }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.ops.is_empty()
+    }
 
     pub fn push(&mut self, op: Op) {
         self.ops.push(op);

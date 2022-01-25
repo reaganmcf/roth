@@ -1,4 +1,5 @@
 use crate::error::RuntimeError;
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub enum Op {
@@ -18,6 +19,17 @@ pub enum Op {
     GreaterThan,
     LessThanEq,
     GreaterThanEq,
+}
+
+impl Display for Op {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Op::Int { val } => write!(f, "{}", val),
+            Op::String { val } => write!(f, "{}", val),
+            Op::Boolean { val} => write!(f, "{}", val),
+            _ => write!(f, "")
+        }
+    } 
 }
 
 macro_rules! handlers {

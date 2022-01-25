@@ -29,7 +29,9 @@ fn main() -> Result<()> {
                 let tokens = Lexer::new(buffer.as_str()).lex()?;
                 let ops = Parser::new(tokens).parse()?;
                 let result = eval(ops)?;
-                println!("Result: {}", result);
+                if let Some(v) = result {
+                    println!("{}", v);
+                }
             }
             Signal::CtrlD | Signal::CtrlC => {
                 line_editor.print_crlf().unwrap();
@@ -42,7 +44,7 @@ fn main() -> Result<()> {
     }
 }
 
-fn eval(ops: Vec<Op>) -> Result<i64> {
+fn eval(ops: Vec<Op>) -> Result<Option<Op>> {
     let mut stack = Stack::new();
 
     for op in ops.into_iter() {
@@ -115,15 +117,9 @@ fn eval(ops: Vec<Op>) -> Result<i64> {
         }
     }
 
-    // Try to return the last item in the stack, if present
-    // Otherwise, just return 0
-    let default = 0;
-
-    match stack.pop() {
-        Ok(e) => match e {
-            Op::Int { val } => Ok(val),
-            _ => Ok(default),
-        },
-        Err(_) => Ok(default),
+    if stack.is_empty() {
+        Ok(None)
+    } else {
+        Ok(Some(stack.pop()?))
     }
 }
