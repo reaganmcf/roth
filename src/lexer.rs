@@ -32,11 +32,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn create_token(
-        &self,
-        mut raw_token: String,
-        start: usize,
-    ) -> Result<Token, ParseError> {
+    fn create_token(&self, mut raw_token: String, start: usize) -> Result<Token, ParseError> {
         let kind = match raw_token.as_str() {
             "+" => Ok(TokenKind::Add),
             "-" => Ok(TokenKind::Sub),
@@ -87,7 +83,11 @@ impl<'a> Lexer<'a> {
             let mut curr = String::new();
             while let Some(c) = self.source.pop_front() {
                 self.cursor += 1;
-                if c.is_whitespace() {
+
+                let in_mid_of_string = curr.starts_with("\"") && !curr.ends_with("\"");
+
+                // make sure we aren't at a whitespace inside of a string
+                if c.is_whitespace() && !in_mid_of_string {
                     // Gotta subtract one frm the end becuase we don't
                     // want to include whitespace in the Span
                     let token = self.create_token(curr.clone(), start)?;
