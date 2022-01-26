@@ -13,6 +13,10 @@ impl Val {
     pub fn new(span: SourceSpan, kind: ValKind) -> Self {
         Self { span, kind }
     }
+
+    pub fn kind(&self) -> &ValKind {
+        &self.kind
+    }
 }
 
 #[derive(Debug)]

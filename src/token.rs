@@ -60,4 +60,10 @@ pub enum TokenKind {
 
     // >=
     GreaterThanEq,
+
+    // 'if'
+    If,
+
+    // 'end'
+    End
 }

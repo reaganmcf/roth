@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::error::ParseError;
 use crate::op::{Op, OpKind};
 use crate::token::{Token, TokenKind};
@@ -12,9 +14,9 @@ impl Parser {
         Self { tokens }
     }
 
-    pub fn parse(&self) -> Result<Vec<Op>, ParseError> {
+    pub fn parse(&self) -> Result<VecDeque<Op>, ParseError> {
         // Split on whitespace
-        let mut ops = Vec::new();
+        let mut ops = VecDeque::new();
 
         for token in &self.tokens {
             let op_kind = match token.kind {
@@ -31,6 +33,8 @@ impl Parser {
                 TokenKind::GreaterThan => OpKind::GreaterThan,
                 TokenKind::LessThanEq => OpKind::LessThanEq,
                 TokenKind::GreaterThanEq => OpKind::GreaterThanEq,
+                TokenKind::If => OpKind::If,
+                TokenKind::End => OpKind::End,
                 TokenKind::String => OpKind::PushString {
                     val: token.inner.clone(),
                 },
@@ -55,7 +59,7 @@ impl Parser {
             }
 
             let span = (token.start, span_len);
-            ops.push(Op::new(span.into(), op_kind));
+            ops.push_back(Op::new(span.into(), op_kind));
         }
 
         Ok(ops)

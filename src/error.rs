@@ -109,4 +109,21 @@ pub enum RuntimeError {
         #[label("this value")] SourceSpan,
         #[label("with that value")] SourceSpan,
     ),
+
+    #[error("Only boolean values can be used for if statements")]
+    #[diagnostic(code(roth::ifs_expect_booleans))]
+    IfsExpectBooleans(
+        #[source_code] String,
+        #[label("only boolean types work for if statements")] SourceSpan,
+    ),
+
+    #[error("Unclosed if statement")]
+    #[diagnostic(
+        code(roth::unclosed_if_statement),
+        help("This usually happens when you forget to close an if statement with a corresponding 'end' token")
+    )]
+    UnclosedIfStatement(
+        #[source_code] String,
+        #[label("if statement has no closing 'end' token")] SourceSpan,
+    ),
 }
