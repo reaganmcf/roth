@@ -1,7 +1,5 @@
 "foo" "bar" eq if
-"branch 1" print drop
-else
-"branch 2" print drop
+  "branch 2" print drop
 end
 
 15 10 > eq if

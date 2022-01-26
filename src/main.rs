@@ -9,7 +9,7 @@ mod val;
 use error::RuntimeError;
 use miette::{Result, SourceSpan};
 use reedline::{DefaultPrompt, Reedline, Signal};
-use std::{collections::VecDeque, process};
+use std::process;
 use val::Val;
 
 use lexer::Lexer;
@@ -17,9 +17,27 @@ use op::Op;
 use parser::Parser;
 use stack::Stack;
 
-use crate::{op::OpKind, val::ValKind};
+use crate::{error::ParseError, op::OpKind, val::ValKind};
 
 fn main() -> Result<()> {
+    // if file was passed in stdin, then eval without repl
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() == 2 {
+        let file_name = args.get(1).unwrap();
+        match std::fs::read_to_string(file_name) {
+            Ok(contents) => {
+                eval(contents)?;
+                Ok(())
+            }
+            _ => return Err(ParseError::CannotReadFile(file_name.to_string()))?,
+        }
+    } else {
+        repl()
+    }
+}
+
+fn repl() -> Result<()> {
     let mut line_editor = Reedline::create().unwrap();
     let prompt = DefaultPrompt::default();
 
@@ -31,9 +49,7 @@ fn main() -> Result<()> {
                     process::exit(0);
                 }
 
-                let tokens = Lexer::new(buffer.as_str()).lex()?;
-                let ops = Parser::new(tokens).parse()?;
-                let mut stack = eval(ops, buffer)?;
+                let mut stack = eval(buffer)?;
                 if let Ok(v) = stack.pop() {
                     println!("{}", v);
                 }
@@ -54,7 +70,9 @@ enum EvalMode {
     If { last_span: SourceSpan },
 }
 
-fn eval(mut ops: VecDeque<Op>, source: String) -> Result<Stack> {
+fn eval(source: String) -> Result<Stack> {
+    let tokens = Lexer::new(source.as_str()).lex()?;
+    let mut ops = Parser::new(tokens).parse()?;
     let mut stack = Stack::new();
 
     let mut eval_mode = EvalMode::Normal;

@@ -1,0 +1,5 @@
+"foo" "bar"
+
+eq if 
+  "theyareequal!" print
+end

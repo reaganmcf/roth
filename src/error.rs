@@ -3,6 +3,13 @@ use thiserror::Error;
 
 #[derive(Error, Debug, Diagnostic)]
 pub enum ParseError {
+    #[error("Cannot open file")]
+    #[diagnostic(
+        code(roth::cannot_open_file),
+        help("Make sure the file `{0}` exists and you have read permissions"
+    ))]
+    CannotReadFile(String),
+
     #[error("unknown token")]
     #[diagnostic(code(roth::unknown_token))]
     UnkownToken(#[source_code] String, #[label("Unknown token")] SourceSpan),
