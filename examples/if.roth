@@ -1,5 +1,5 @@
 "foo" "bar"
-
-eq if 
+eq if
   "theyareequal!" print
 end
+1 2 + 3 / 100 eq
