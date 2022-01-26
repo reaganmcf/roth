@@ -75,6 +75,14 @@ impl<'a> Lexer<'a> {
         Ok(Token::new(raw_token, start, kind))
     }
 
+    fn eat_until_newline(&mut self) {
+        while let Some(c) = self.source.pop_front() {
+            if c == '\n' {
+                break;
+            }
+        }
+    }
+
     pub fn lex(&mut self) -> Result<Vec<Token>> {
         let mut tokens = Vec::new();
         self.eat_trivia();
@@ -84,12 +92,10 @@ impl<'a> Lexer<'a> {
             while let Some(c) = self.source.pop_front() {
                 self.cursor += 1;
 
-                let in_mid_of_string = curr.starts_with("\"") && !curr.ends_with("\"");
+                let in_mid_of_string = curr.starts_with('\"') && !curr.ends_with('\"');
 
                 // make sure we aren't at a whitespace inside of a string
                 if c.is_whitespace() && !in_mid_of_string {
-                    // Gotta subtract one frm the end becuase we don't
-                    // want to include whitespace in the Span
                     let token = self.create_token(curr.clone(), start)?;
                     tokens.push(token);
                     curr.clear();
@@ -97,6 +103,12 @@ impl<'a> Lexer<'a> {
                 } else {
                     // keep parsing chars
                     curr.push(c);
+
+                    // if we are a comment, eat until new line
+                    if curr == "//" {
+                        self.eat_until_newline();
+                        curr.clear();
+                    }
                 }
             }
 
