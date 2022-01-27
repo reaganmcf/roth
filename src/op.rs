@@ -31,5 +31,7 @@ pub enum OpKind {
     LessThanEq,
     GreaterThanEq,
     If,
-    End
+    End,
+    Dup,
+    Drop
 }

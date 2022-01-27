@@ -3,7 +3,7 @@ use miette::SourceSpan;
 use crate::error::RuntimeError;
 use std::fmt::Display;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Val {
     span: SourceSpan,
     kind: ValKind,
@@ -19,7 +19,7 @@ impl Val {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ValKind {
     Int { val: i64 },
     String { val: String },

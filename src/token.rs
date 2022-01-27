@@ -70,6 +70,12 @@ pub enum TokenKind {
     // 'macro'
     Macro,
 
+    // 'dup'
+    Dup,
+
+    // 'drop',
+    Drop,
+
     // '.*'
-    Ident
+    Ident,
 }

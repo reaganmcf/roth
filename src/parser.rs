@@ -58,6 +58,8 @@ impl Parser {
                 TokenKind::GreaterThanEq => OpKind::GreaterThanEq,
                 TokenKind::If => OpKind::If,
                 TokenKind::End => OpKind::End,
+                TokenKind::Dup => OpKind::Dup,
+                TokenKind::Drop => OpKind::Drop,
                 TokenKind::String => OpKind::PushString {
                     val: token.inner.clone(),
                 },
