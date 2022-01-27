@@ -70,7 +70,7 @@ impl<'a> Lexer<'a> {
                     } else {
                         Err(ParseError::UnterminatedStringLiteral)
                     }
-                } else if raw_token.parse::<i64>().is_ok() {
+                } else if raw_token.parse::<i128>().is_ok() {
                     Ok(TokenKind::Number)
                 } else if raw_token.parse::<bool>().is_ok() {
                     Ok(TokenKind::Boolean)

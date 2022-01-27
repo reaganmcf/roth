@@ -66,7 +66,7 @@ impl Parser {
                 TokenKind::String => OpKind::PushString {
                     val: token.inner.clone(),
                 },
-                TokenKind::Number => match token.inner.parse::<i64>() {
+                TokenKind::Number => match token.inner.parse::<i128>() {
                     Ok(v) => OpKind::PushInt { val: v },
                     Err(_) => {
                         unreachable!("Lexer said it was a number, but it can't be parsed as one")

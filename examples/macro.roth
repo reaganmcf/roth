@@ -1,34 +1,22 @@
-macro N 10 end
-
-// 0 1 1 2 3 5 8 13 21
-
-// 0 1 10
-//dup 1 <=
-//  // 0 1 10
-//  rot
-//  // 1 10 0
-//  rot
-//  // 10 0 1
-//  over
-//  // 10 0 1 0
-//  over 
-//  // 10 0 1 0 1
-//  +
-//  // 10 0 1 1
-//  rot
-//  // 0 1 1 10
-//  rot
-//  // 1 1 10 0
-//  drop
-//  // 1 1 10
-//  1 -
-//  // 1 1 9
-
-
 macro fib
-  0 1 <= if // 10 <= 1
-    
-
+  dup rot +
 end
 
-x y + print
+"Calculating fib(70) through macro expansion..." print drop
+
+0 1
+
+
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+
+print drop drop
+
+// fib 70
+// 0 1 1 2 3 5 8 13 21
+// print swap print swap "--" print drop

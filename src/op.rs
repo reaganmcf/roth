@@ -14,7 +14,7 @@ impl Op {
 
 #[derive(Debug)]
 pub enum OpKind {
-    PushInt { val: i64 },
+    PushInt { val: i128 },
     PushString { val: String },
     PushBoolean { val: bool },
     Add,

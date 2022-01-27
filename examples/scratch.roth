@@ -1,0 +1,9 @@
+macro N 10 end
+
+macro testing
+  1 2 +
+end
+
+testing
+
+N swap print

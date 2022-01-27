@@ -95,6 +95,8 @@ fn eval(source: String) -> Result<Stack> {
                             let mut if_counter: usize = 1;
                             // skip to next 'end' keyword
                             loop {
+                                println!("if stmt was false");
+                                println!("ops = {:#?}", ops);
                                 match ops.pop_front() {
                                     Some(o) => match o.kind {
                                         OpKind::End => {

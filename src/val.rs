@@ -21,7 +21,7 @@ impl Val {
 
 #[derive(Debug, Clone)]
 pub enum ValKind {
-    Int { val: i64 },
+    Int { val: i128 },
     String { val: String },
     Boolean { val: bool },
 }
