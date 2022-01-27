@@ -1,13 +1,10 @@
 "foo" "bar"
 
 // if foo equals bar, enter this branch
-// otherwise, we will jump until
 eq not if
-  "value was true" print
+  "foo does not equal bar" print
 
   1 2 > if
-    "nestedif!" print
+    "Inside nested if statement" print
   end
-
-  "we shouldn't beh ere when false!" print
 end

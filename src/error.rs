@@ -6,9 +6,16 @@ pub enum ParseError {
     #[error("Cannot open file")]
     #[diagnostic(
         code(roth::cannot_open_file),
-        help("Make sure the file `{0}` exists and you have read permissions"
-    ))]
+        help("Make sure the file `{0}` exists and you have read permissions")
+    )]
     CannotReadFile(String),
+
+    #[error("Reached EOF before finding `end` token for macro definition")]
+    #[diagnostic(
+        code(roth::unclosed_macro),
+        help("Make sure macro {0} has a corresponding `end` token")
+    )]
+    UnclosedMacro(String),
 
     #[error("unknown token")]
     #[diagnostic(code(roth::unknown_token))]

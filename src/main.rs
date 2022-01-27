@@ -67,7 +67,6 @@ fn repl() -> Result<()> {
 
 enum EvalMode {
     Normal,
-
     If { last_span: SourceSpan },
 }
 

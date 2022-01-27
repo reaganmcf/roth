@@ -2,20 +2,25 @@ use crate::{
     error::ParseError,
     token::{Token, TokenKind},
 };
+use fancy_regex::Regex;
 use miette::Result;
 use std::collections::VecDeque;
 
 pub struct Lexer<'a> {
     raw_source: &'a str,
     source: VecDeque<char>,
+    tokens: Vec<Token>,
     cursor: usize,
 }
+
+const MACRO_REGEX: &str = r"^\s*macro (?<name>.+?)(?=\s|\n)(?<content>[\s\S]*?)(?=end)";
 
 impl<'a> Lexer<'a> {
     pub fn new(buffer: &'a str) -> Self {
         Self {
             raw_source: buffer,
             source: buffer.chars().collect(),
+            tokens: vec![],
             cursor: 0,
         }
     }
@@ -49,6 +54,7 @@ impl<'a> Lexer<'a> {
             ">=" => Ok(TokenKind::GreaterThanEq),
             "if" => Ok(TokenKind::If),
             "end" => Ok(TokenKind::End),
+            "macro" => Ok(TokenKind::Macro),
             _ => {
                 if raw_token.starts_with('\"') {
                     if raw_token.ends_with('\"') {
@@ -64,10 +70,7 @@ impl<'a> Lexer<'a> {
                 } else if raw_token.parse::<bool>().is_ok() {
                     Ok(TokenKind::Boolean)
                 } else {
-                    Err(ParseError::UnkownToken(
-                        self.raw_source.to_string(),
-                        (start, raw_token.len()).into(),
-                    ))
+                    Ok(TokenKind::Ident)
                 }
             }
         }?;
@@ -83,8 +86,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn lex(&mut self) -> Result<Vec<Token>> {
-        let mut tokens = Vec::new();
+    pub fn lex(mut self) -> Result<Vec<Token>> {
         self.eat_trivia();
         while self.source.front().is_some() {
             let start = self.cursor;
@@ -97,7 +99,7 @@ impl<'a> Lexer<'a> {
                 // make sure we aren't at a whitespace inside of a string
                 if c.is_whitespace() && !in_mid_of_string {
                     let token = self.create_token(curr.clone(), start)?;
-                    tokens.push(token);
+                    self.tokens.push(token);
                     curr.clear();
                     break;
                 } else {
@@ -116,14 +118,14 @@ impl<'a> Lexer<'a> {
             // which can happen at the end of the file
             if !curr.is_empty() {
                 let token = self.create_token(curr.clone(), start)?;
-                tokens.push(token);
+                self.tokens.push(token);
                 curr.clear();
             }
 
             self.eat_trivia();
         }
 
-        Ok(tokens)
+        Ok(self.tokens)
     }
 }
 
@@ -137,7 +139,7 @@ mod tests {
     #[test]
     fn test_simple_lex() {
         let buff = "1 2 +";
-        let mut lexer = Lexer::new(buff);
+        let lexer = Lexer::new(buff);
         let actual = lexer.lex().unwrap();
 
         let expected = vec![

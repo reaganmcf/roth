@@ -1,0 +1,11 @@
+macro N 10 end
+
+// 10
+
+macro fib
+  N 1 <= if // 10 <= 1
+    
+
+end
+
+x y + print

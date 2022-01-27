@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Token {
     pub start: usize,
     pub inner: String,
@@ -11,7 +11,7 @@ impl Token {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum TokenKind {
     // [1-9]+
     Number,
@@ -65,5 +65,11 @@ pub enum TokenKind {
     If,
 
     // 'end'
-    End
+    End,
+
+    // 'macro'
+    Macro,
+
+    // '.*'
+    Ident
 }
