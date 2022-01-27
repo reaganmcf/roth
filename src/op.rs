@@ -33,5 +33,8 @@ pub enum OpKind {
     If,
     End,
     Dup,
-    Drop
+    Drop,
+    Swap,
+    Over,
+    Rot
 }

@@ -57,6 +57,9 @@ impl<'a> Lexer<'a> {
             "macro" => Ok(TokenKind::Macro),
             "dup" => Ok(TokenKind::Dup),
             "drop" => Ok(TokenKind::Drop),
+            "swap" => Ok(TokenKind::Swap),
+            "over" => Ok(TokenKind::Over),
+            "rot" => Ok(TokenKind::Rot),
             _ => {
                 if raw_token.starts_with('\"') {
                     if raw_token.ends_with('\"') {

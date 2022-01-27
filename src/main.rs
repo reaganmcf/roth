@@ -229,10 +229,19 @@ fn eval_simple(op: Op, stack: &mut Stack, source: &str) -> Result<()> {
             stack.push(x.gte(y, source, op.span)?);
         }
         OpKind::Dup => {
-            stack.push(stack.peek()?.clone());
+            stack.dup()?;
         }
         OpKind::Drop => {
             stack.pop()?;
+        }
+        OpKind::Swap => {
+            stack.swap()?;
+        }
+        OpKind::Over => {
+            stack.over()?;
+        }
+        OpKind::Rot => {
+            stack.rot()?;
         }
         _ => unreachable!("non simple opkind should have already been processed"),
     }

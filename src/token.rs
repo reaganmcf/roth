@@ -76,6 +76,15 @@ pub enum TokenKind {
     // 'drop',
     Drop,
 
+    // 'swap'
+    Swap,
+
+    // 'over'
+    Over,
+
+    // 'rot'
+    Rot,
+
     // '.*'
     Ident,
 }

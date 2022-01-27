@@ -60,6 +60,9 @@ impl Parser {
                 TokenKind::End => OpKind::End,
                 TokenKind::Dup => OpKind::Dup,
                 TokenKind::Drop => OpKind::Drop,
+                TokenKind::Swap => OpKind::Swap,
+                TokenKind::Over => OpKind::Over,
+                TokenKind::Rot => OpKind::Rot,
                 TokenKind::String => OpKind::PushString {
                     val: token.inner.clone(),
                 },
