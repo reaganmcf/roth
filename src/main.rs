@@ -98,8 +98,6 @@ fn eval(source: String) -> Result<Stack> {
                             let mut if_counter: usize = 1;
                             // skip to next 'end' keyword
                             loop {
-                                println!("if stmt was false");
-                                println!("ops = {:#?}", ops);
                                 match ops.pop_front() {
                                     Some(o) => match o.kind {
                                         OpKind::End => {
@@ -182,8 +180,7 @@ fn eval_simple(op: Op, stack: &mut Stack, source: &str) -> Result<()> {
             stack.push(x.div(y, source, op.span)?);
         }
         OpKind::Print => {
-            // Print doesn't mutate the stack, so we peek instead of pop
-            let x = stack.peek()?;
+            let x = stack.pop()?;
             x.print();
         }
         OpKind::Or => {

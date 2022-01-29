@@ -40,35 +40,37 @@ impl Stack {
 
     // ( a b -- b a)
     pub fn swap(&mut self) -> Result<(), RuntimeError> {
-        let y = self.pop()?;
-        let x = self.pop()?;
+        let b = self.pop()?;
+        let a = self.pop()?;
 
-        self.push(y);
-        self.push(x);
+        self.push(b);
+        self.push(a);
 
         Ok(())
     }
 
     // ( a b -- a b a)
     pub fn over(&mut self) -> Result<(), RuntimeError> {
-        let y = self.pop()?;
-        let x = self.pop()?;
+        let b = self.pop()?;
+        let a = self.pop()?;
 
-        self.push(x.clone());
-        self.push(y);
-        self.push(x);
+        self.push(a.clone());
+        self.push(b);
+        self.push(a);
 
         Ok(())
     }
 
     // (a b c -- b c a)
     pub fn rot(&mut self) -> Result<(), RuntimeError> {
-        match self.vals.pop_front() {
-            Some(front) => {
-               self.push(front);
-               Ok(())
-            }
-            None => Err(RuntimeError::EmptyStackError),
-        }
+        let c = self.pop()?;
+        let b = self.pop()?;
+        let a = self.pop()?;
+
+        self.push(b);
+        self.push(c);
+        self.push(a);
+
+        Ok(())
     }
 }
