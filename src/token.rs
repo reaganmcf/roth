@@ -1,13 +1,25 @@
+use miette::SourceSpan;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Token {
-    pub start: usize,
+    pub span: SourceSpan,
     pub inner: String,
     pub kind: TokenKind,
 }
 
 impl Token {
     pub fn new(inner: String, start: usize, kind: TokenKind) -> Self {
-        Self { start, inner, kind }
+        // spans for strings are actually +2 longer (since we trim the " marks)
+        let mut span_len = inner.len();
+        if let TokenKind::String = kind {
+            span_len += 2;
+        }
+
+        Self {
+            span: (start, span_len).into(),
+            inner,
+            kind,
+        }
     }
 }
 

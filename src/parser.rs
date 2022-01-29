@@ -16,7 +16,7 @@ impl Parser {
         }
     }
 
-    pub fn parse(&mut self) -> Result<VecDeque<Op>, ParseError> {
+    pub fn parse(&mut self, source: String) -> Result<VecDeque<Op>, ParseError> {
         // Split on whitespace
         let mut ops = VecDeque::new();
         let mut macro_table = HashMap::new();
@@ -24,7 +24,7 @@ impl Parser {
         while let Some(token) = self.tokens.pop_front() {
             let op_kind = match token.kind {
                 TokenKind::Macro => {
-                    let (m_def, m_body) = self.parse_macro_def()?;
+                    let (m_def, m_body) = self.parse_macro_def(&source, token)?;
                     macro_table.insert(m_def, m_body);
 
                     continue;
@@ -38,7 +38,7 @@ impl Parser {
                             self.tokens.push_front(token.clone());
                         }
                     } else {
-                        unreachable!("no corresponding macro")
+                        return Err(ParseError::UnknownMacro(source.to_string(), token.span, token.inner));
                     }
 
                     continue;
@@ -80,36 +80,42 @@ impl Parser {
                 },
             };
 
-            // spans for strings are actually +2 longer (since we trim the " marks)
-            let mut span_len = token.inner.len();
-            if let TokenKind::String = token.kind {
-                span_len += 2;
-            }
-
-            let span = (token.start, span_len);
-            ops.push_back(Op::new(span.into(), op_kind));
+            ops.push_back(Op::new(token.span, op_kind));
         }
 
         Ok(ops)
     }
 
-    fn parse_macro_def(&mut self) -> Result<(String, Vec<Token>), ParseError> {
+    fn parse_macro_def(
+        &mut self,
+        source: &String,
+        macro_token: Token,
+    ) -> Result<(String, Vec<Token>), ParseError> {
         if let Some(next) = self.tokens.pop_front() {
             match next.kind {
                 TokenKind::Ident => {
-                    let macro_name = next.inner;
+                    let macro_name = next.inner.to_string();
                     // consume until corresponding 'end' token
-                    let macro_body = self.parse_macro_body(&macro_name)?;
+                    let macro_body = self.parse_macro_body(source, macro_token, next)?;
                     Ok((macro_name, macro_body))
                 }
-                _ => unreachable!("unnamed macro"),
+                _ => return Err(ParseError::UnnamedMacro(source.to_string(), macro_token.span)),
             }
         } else {
-            unreachable!("eof after macro")
+            return Err(ParseError::UnclosedMacro(
+                source.to_string(),
+                macro_token.span,
+                macro_token.inner,
+            ));
         }
     }
 
-    fn parse_macro_body(&mut self, macro_name: &String) -> Result<Vec<Token>, ParseError> {
+    fn parse_macro_body(
+        &mut self,
+        source: &String,
+        macro_token: Token,
+        name: Token,
+    ) -> Result<Vec<Token>, ParseError> {
         let mut macro_body = vec![];
         let mut count: usize = 1;
         loop {
@@ -129,7 +135,13 @@ impl Parser {
                         macro_body.push(t);
                     }
                 },
-                _ => return Err(ParseError::UnclosedMacro(macro_name.to_string())),
+                _ => {
+                    return Err(ParseError::UnclosedMacro(
+                        source.to_string(),
+                        macro_token.span,
+                        name.inner,
+                    ))
+                }
             }
         }
 

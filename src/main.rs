@@ -49,14 +49,17 @@ fn repl() -> Result<()> {
                     process::exit(0);
                 }
 
-                let mut stack = eval(buffer)?;
-                if let Ok(v) = stack.pop() {
-                    println!("{}", v);
+                match eval(buffer) {
+                    Ok(mut stack) => {
+                        if let Ok(v) = stack.pop() {
+                            println!("{}", v);
+                        }
+                    }
+                    Err(e) => println!("{:?}", e),
                 }
             }
             Signal::CtrlD | Signal::CtrlC => {
                 line_editor.print_crlf().unwrap();
-                process::exit(0);
             }
             Signal::CtrlL => {
                 line_editor.clear_screen().unwrap();
@@ -72,7 +75,7 @@ enum EvalMode {
 
 fn eval(source: String) -> Result<Stack> {
     let tokens = Lexer::new(source.as_str()).lex()?;
-    let mut ops = Parser::new(tokens).parse()?;
+    let mut ops = Parser::new(tokens).parse(source.to_string())?;
     let mut stack = Stack::new();
 
     let mut eval_mode = EvalMode::Normal;

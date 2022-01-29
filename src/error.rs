@@ -13,13 +13,30 @@ pub enum ParseError {
     #[error("Reached EOF before finding `end` token for macro definition")]
     #[diagnostic(
         code(roth::unclosed_macro),
-        help("Make sure macro {0} has a corresponding `end` token")
+        help("Make sure macro `{2}` has a corresponding `end` token")
     )]
-    UnclosedMacro(String),
+    UnclosedMacro(
+        #[source_code] String,
+        #[label("No `end` token for this macro expansion")] SourceSpan,
+        String,
+    ),
 
-    #[error("unknown token")]
-    #[diagnostic(code(roth::unknown_token))]
-    UnkownToken(#[source_code] String, #[label("Unknown token")] SourceSpan),
+    #[error("Macro definitions must be named")]
+    #[diagnostic(
+        code(roth::unnamed_macro),
+        help("Consider adding an identifier token, like `foo` after the `macro` keyword")
+    )]
+    UnnamedMacro(
+        #[source_code] String,
+        #[label("No identifier found after this macro keyword")] SourceSpan,
+    ),
+
+    #[error("Unknown macro")]
+    #[diagnostic(
+        code(roth::unknown_macro),
+        help("Could not find any macro with the name `{2}`. Is this a typo?")
+    )]
+    UnknownMacro(#[source_code] String, #[label("Unknown macro")] SourceSpan, String),
 
     #[error("unterminated string literal")]
     #[diagnostic(code(roth::unterminated_string))]
