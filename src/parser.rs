@@ -32,7 +32,7 @@ impl Parser {
                 TokenKind::Ident => {
                     // Ident's are macro names that are yet to be expanded
                     if let Some(expansion) = macro_table.get(&token.inner) {
-                        for token in expansion.into_iter().rev() {
+                        for token in expansion.iter().rev() {
                             // we want to add them in the front in order,
                             // so we add them to the front in reverse order
                             self.tokens.push_front(token.clone());
@@ -88,7 +88,7 @@ impl Parser {
 
     fn parse_macro_def(
         &mut self,
-        source: &String,
+        source: &str,
         macro_token: Token,
     ) -> Result<(String, Vec<Token>), ParseError> {
         if let Some(next) = self.tokens.pop_front() {
@@ -99,20 +99,20 @@ impl Parser {
                     let macro_body = self.parse_macro_body(source, macro_token, next)?;
                     Ok((macro_name, macro_body))
                 }
-                _ => return Err(ParseError::UnnamedMacro(source.to_string(), macro_token.span)),
+                _ => Err(ParseError::UnnamedMacro(source.to_string(), macro_token.span)),
             }
         } else {
-            return Err(ParseError::UnclosedMacro(
+            Err(ParseError::UnclosedMacro(
                 source.to_string(),
                 macro_token.span,
                 macro_token.inner,
-            ));
+            ))
         }
     }
 
     fn parse_macro_body(
         &mut self,
-        source: &String,
+        source: &str,
         macro_token: Token,
         name: Token,
     ) -> Result<Vec<Token>, ParseError> {

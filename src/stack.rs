@@ -14,10 +14,6 @@ impl Stack {
         }
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.vals.is_empty()
-    }
-
     pub fn push(&mut self, val: Val) {
         self.vals.push_back(val);
     }
@@ -68,7 +64,10 @@ impl Stack {
     // (a b c -- b c a)
     pub fn rot(&mut self) -> Result<(), RuntimeError> {
         match self.vals.pop_front() {
-            Some(front) => Ok(self.push(front)),
+            Some(front) => {
+               self.push(front);
+               Ok(())
+            }
             None => Err(RuntimeError::EmptyStackError),
         }
     }
