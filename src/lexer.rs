@@ -2,23 +2,18 @@ use crate::{
     error::ParseError,
     token::{Token, TokenKind},
 };
-use fancy_regex::Regex;
 use miette::Result;
 use std::collections::VecDeque;
 
-pub struct Lexer<'a> {
-    raw_source: &'a str,
+pub struct Lexer {
     source: VecDeque<char>,
     tokens: Vec<Token>,
     cursor: usize,
 }
 
-const MACRO_REGEX: &str = r"^\s*macro (?<name>.+?)(?=\s|\n)(?<content>[\s\S]*?)(?=end)";
-
-impl<'a> Lexer<'a> {
-    pub fn new(buffer: &'a str) -> Self {
+impl Lexer {
+    pub fn new(buffer: &str) -> Self {
         Self {
-            raw_source: buffer,
             source: buffer.chars().collect(),
             tokens: vec![],
             cursor: 0,
@@ -85,6 +80,7 @@ impl<'a> Lexer<'a> {
 
     fn eat_until_newline(&mut self) {
         while let Some(c) = self.source.pop_front() {
+            self.cursor += 1;
             if c == '\n' {
                 break;
             }
@@ -94,7 +90,7 @@ impl<'a> Lexer<'a> {
     pub fn lex(mut self) -> Result<Vec<Token>> {
         self.eat_trivia();
         while self.source.front().is_some() {
-            let start = self.cursor;
+            let mut start = self.cursor;
             let mut curr = String::new();
             while let Some(c) = self.source.pop_front() {
                 self.cursor += 1;
@@ -115,6 +111,7 @@ impl<'a> Lexer<'a> {
                     if curr == "//" {
                         self.eat_until_newline();
                         curr.clear();
+                        start = self.cursor;
                     }
                 }
             }
@@ -136,23 +133,224 @@ impl<'a> Lexer<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        lexer::Lexer,
-        token::{Token, TokenKind},
-    };
+    use crate::{lexer::Lexer, token::Token};
+    use expect_test::expect;
+
+    fn test(buff: &str) -> Vec<Token> {
+        Lexer::new(buff).lex().unwrap()
+    }
 
     #[test]
     fn test_simple_lex() {
-        let buff = "1 2 +";
-        let lexer = Lexer::new(buff);
-        let actual = lexer.lex().unwrap();
+        let actual = test("1 2 +");
 
-        let expected = vec![
-            Token::new("1".into(), 0, TokenKind::Number),
-            Token::new("2".into(), 2, TokenKind::Number),
-            Token::new("+".into(), 4, TokenKind::Add),
-        ];
+        let expected = expect![[r#"
+            [
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            0,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "1",
+                    kind: Number,
+                },
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            2,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "2",
+                    kind: Number,
+                },
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            4,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "+",
+                    kind: Add,
+                },
+            ]
+        "#]];
 
-        assert_eq!(actual, expected);
+        expected.assert_debug_eq(&actual);
+    }
+
+    #[test]
+    fn test_simple_comment() {
+        let actual = test("//simple_comment");
+
+        let expected = expect![[r#"
+            []
+        "#]];
+
+        expected.assert_debug_eq(&actual);
+    }
+
+    #[test]
+    fn test_simple_comment_with_spaces() {
+        let actual = test("// this is a comment with spaces");
+
+        let expected = expect![[r#"
+            []
+        "#]];
+
+        expected.assert_debug_eq(&actual);
+    }
+
+    #[test]
+    fn test_comments_before_expr() {
+        let actual = test(
+            "// this a comment before some expressions
+1 2 +",
+        );
+
+        let expected = expect![[r#"
+            [
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            42,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "1",
+                    kind: Number,
+                },
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            44,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "2",
+                    kind: Number,
+                },
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            46,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "+",
+                    kind: Add,
+                },
+            ]
+        "#]];
+
+        expected.assert_debug_eq(&actual)
+    }
+
+    #[test]
+    fn test_weird_comments() {
+        let actual = test(
+            "1 2 +
+// some weird comment here
+// afjh fj ak// kfja / / fjkod j/ f
+1
+// some thing
+2
+// some other thing
++
+");
+        
+        let expected = expect![[r#"
+            [
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            0,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "1",
+                    kind: Number,
+                },
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            2,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "2",
+                    kind: Number,
+                },
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            4,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "+",
+                    kind: Add,
+                },
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            69,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "1",
+                    kind: Number,
+                },
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            85,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "2",
+                    kind: Number,
+                },
+                Token {
+                    span: SourceSpan {
+                        offset: SourceOffset(
+                            107,
+                        ),
+                        length: SourceOffset(
+                            1,
+                        ),
+                    },
+                    inner: "+",
+                    kind: Add,
+                },
+            ]
+        "#]];
+
+        expected.assert_debug_eq(&actual);
     }
 }
