@@ -157,4 +157,14 @@ pub enum RuntimeError {
         #[source_code] String,
         #[label("if statement has no closing 'end' token")] SourceSpan,
     ),
+
+    #[error("Unexpected end token")]
+    #[diagnostic(
+        code(roth::unexpected_end_token),
+        help("End tokens are used for macros, if statements, loops, etc. - but this end token is by itself")
+    )]
+    UnexpectedEndToken(
+        #[source_code] String,
+        #[label("Try removing this token")] SourceSpan
+    )
 }
