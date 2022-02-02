@@ -36,5 +36,7 @@ pub enum OpKind {
     Drop,
     Swap,
     Over,
-    Rot
+    Rot,
+    Until,
+    Do
 }

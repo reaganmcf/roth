@@ -99,4 +99,10 @@ pub enum TokenKind {
 
     // '.*'
     Ident,
+
+    // until
+    Until,
+
+    // do
+    Do,
 }

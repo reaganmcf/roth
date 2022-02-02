@@ -130,6 +130,12 @@ fn eval(source: String) -> Result<Stack> {
                         )
                     }
                 }
+            },
+            OpKind::Until => {
+                todo!("implement until");
+            },
+            OpKind::Do => {
+                todo!("implement do");
             }
             OpKind::End => {
                 eval_mode = EvalMode::Normal;
