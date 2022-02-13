@@ -3,7 +3,7 @@ use miette::Result;
 use std::{
     fs::File,
     io::Read,
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use crate::error::ParseError;
@@ -54,7 +54,7 @@ impl PreProcessor {
                 Ok(mut file) => {
                     let mut file_contents = String::new();
                     if file.read_to_string(&mut file_contents).is_err() {
-                        return Err(ParseError::CantOpenIncludeFile(
+                        return Err(ParseError::CantOpenOrReadIncludeFile(
                             self.raw_source.clone(),
                             trimmed.clone(),
                             (start, full_match.len()).into(),
@@ -65,7 +65,7 @@ impl PreProcessor {
                     expanded_file = expanded_file.replace(full_match, file_contents.as_str());
                 }
                 Err(_) => {
-                    return Err(ParseError::CantOpenIncludeFile(
+                    return Err(ParseError::CantOpenOrReadIncludeFile(
                         self.raw_source.clone(),
                         trimmed.clone(),
                         (start, full_match.len()).into(),
