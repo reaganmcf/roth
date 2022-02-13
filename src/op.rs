@@ -1,6 +1,6 @@
 use miette::SourceSpan;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Op {
     pub(crate) span: SourceSpan,
     pub(crate) kind: OpKind,
@@ -12,7 +12,7 @@ impl Op {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum OpKind {
     PushInt { val: i128 },
     PushString { val: String },
@@ -37,6 +37,4 @@ pub enum OpKind {
     Swap,
     Over,
     Rot,
-    Until,
-    Do
 }

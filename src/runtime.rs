@@ -31,18 +31,16 @@ impl Runtime {
         }
     }
 
-    pub fn eval(mut self) -> Result<Stack> {
+    pub fn run(&mut self) -> Result<Stack> {
         while let Some(op) = self.ops.pop_front() {
             match op.kind {
                 OpKind::If => self.eval_if(op)?,
-                OpKind::Until => {
-                    todo!("implement until")
-                }
-                OpKind::Do => {
-                    todo!("implement do")
-                }
                 OpKind::End => {
-                    return Err(RuntimeError::UnexpectedEndToken(self.source.clone(), op.span).into());
+                    if let EvalMode::Normal = self.mode {
+                        return Err(
+                            RuntimeError::UnexpectedEndToken(self.source.clone(), op.span).into(),
+                        );
+                    }
                 }
                 _ => self.eval_simple(op)?,
             }
@@ -50,11 +48,13 @@ impl Runtime {
 
         // If we are still in a non normal eval mode here, then the program probably has structural errors
         // and it wasn't supposed to make it this far
-        match self.mode {
-            EvalMode::If { last_span } => {
-                Err(RuntimeError::UnclosedIfStatement(self.source.clone(), last_span).into())
-            }
-            _ => Ok(self.stack),
+        match &self.mode {
+            EvalMode::If { last_span } => Err(RuntimeError::UnclosedIfStatement(
+                self.source.clone(),
+                last_span.clone(),
+            )
+            .into()),
+            _ => Ok(self.stack.clone()),
         }
     }
 
@@ -71,33 +71,7 @@ impl Runtime {
                     // Keep evaluating as normal
                     self.mode = EvalMode::If { last_span: op.span };
                 } else {
-                    let mut if_counter: usize = 1;
-                    // skip to next 'end' keyword
-                    loop {
-                        match self.ops.pop_front() {
-                            Some(o) => match o.kind {
-                                OpKind::End => {
-                                    if_counter -= 1;
-                                    if if_counter == 0 {
-                                        break;
-                                    }
-                                }
-                                OpKind::If => {
-                                    if_counter += 1;
-                                }
-                                _ => {}
-                            },
-                            _ => {
-                                return Err(RuntimeError::UnclosedIfStatement(
-                                    self.source.to_string(),
-                                    op.span,
-                                )
-                                .into());
-                            }
-                        }
-                    }
-
-                    self.mode = EvalMode::Normal;
+                    self.skip_until_corresponding_end(op)?;
                 }
             }
             _ => {
@@ -106,6 +80,38 @@ impl Runtime {
                 )
             }
         }
+        Ok(())
+    }
+
+    fn skip_until_corresponding_end(&mut self, op: Op) -> Result<()> {
+        let mut if_counter: usize = 1;
+        // skip to next 'end' keyword
+        loop {
+            match self.ops.pop_front() {
+                Some(o) => match o.kind {
+                    OpKind::End => {
+                        if_counter -= 1;
+                        if if_counter == 0 {
+                            break;
+                        }
+                    }
+                    OpKind::If => {
+                        if_counter += 1;
+                    }
+                    _ => {}
+                },
+                _ => {
+                    return Err(RuntimeError::UnclosedIfStatement(
+                        self.source.to_string(),
+                        op.span,
+                    )
+                    .into());
+                }
+            }
+        }
+
+        self.mode = EvalMode::Normal;
+
         Ok(())
     }
 

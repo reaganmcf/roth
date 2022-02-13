@@ -166,5 +166,5 @@ pub enum RuntimeError {
     UnexpectedEndToken(
         #[source_code] String,
         #[label("Try removing this token")] SourceSpan
-    )
+    ),
 }

@@ -7,4 +7,6 @@ eq not if
   1 2 > if
     "Inside nested if statement" print
   end
+
+  "should print this!" print
 end

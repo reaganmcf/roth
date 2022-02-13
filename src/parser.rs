@@ -63,8 +63,6 @@ impl Parser {
                 TokenKind::Swap => OpKind::Swap,
                 TokenKind::Over => OpKind::Over,
                 TokenKind::Rot => OpKind::Rot,
-                TokenKind::Until => OpKind::Until,
-                TokenKind::Do => OpKind::Do,
                 TokenKind::String => OpKind::PushString {
                     val: token.inner.clone(),
                 },

@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use crate::{error::RuntimeError, val::Val};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Stack {
     vals: VecDeque<Val>,
 }

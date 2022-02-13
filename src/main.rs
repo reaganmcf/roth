@@ -70,5 +70,5 @@ fn repl() -> Result<()> {
 fn eval(source: String) -> Result<Stack> {
     let tokens = Lexer::new(source.as_str()).lex()?;
     let ops = Parser::new(tokens).parse(source.to_string())?;
-    Runtime::new(source, ops).eval()
+    Runtime::new(source, ops).run()
 }
