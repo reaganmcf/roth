@@ -38,7 +38,11 @@ impl Parser {
                             self.tokens.push_front(token.clone());
                         }
                     } else {
-                        return Err(ParseError::UnknownMacro(source.to_string(), token.span, token.inner));
+                        return Err(ParseError::UnknownMacro(
+                            source.to_string(),
+                            token.span,
+                            token.inner,
+                        ));
                     }
 
                     continue;
@@ -99,7 +103,10 @@ impl Parser {
                     let macro_body = self.parse_macro_body(source, macro_token, next)?;
                     Ok((macro_name, macro_body))
                 }
-                _ => Err(ParseError::UnnamedMacro(source.to_string(), macro_token.span)),
+                _ => Err(ParseError::UnnamedMacro(
+                    source.to_string(),
+                    macro_token.span,
+                )),
             }
         } else {
             Err(ParseError::UnclosedMacro(
