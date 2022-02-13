@@ -1,0 +1,22 @@
+macro fib
+  dup rot +
+end
+
+"Calculating fib(70) through macro expansion..." print drop
+
+0 1
+
+
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+fib fib fib fib fib fib fib fib fib fib
+
+print drop drop
+
+// fib 70
+// 0 1 1 2 3 5 8 13 21
+// print swap print swap "--" print drop
