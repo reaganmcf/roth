@@ -36,11 +36,38 @@ pub enum ParseError {
         code(roth::unknown_macro),
         help("Could not find any macro with the name `{2}`. Is this a typo?")
     )]
-    UnknownMacro(#[source_code] String, #[label("Unknown macro")] SourceSpan, String),
+    UnknownMacro(
+        #[source_code] String,
+        #[label("Unknown macro")] SourceSpan,
+        String,
+    ),
 
     #[error("unterminated string literal")]
     #[diagnostic(code(roth::unterminated_string))]
     UnterminatedStringLiteral,
+
+    #[error("Can't include non-existent file")]
+    #[diagnostic(
+        code(roth::include_file_doesnt_exist),
+        help("Make sure there exists a file at `{1}`")
+    )]
+    CantIncludeNonExistentFile(
+        #[source_code] String,
+        String, // file name
+        #[label("This include statement points to a non existent file")] SourceSpan,
+    ),
+
+    #[error("Unable to open or read file inside `include` statement")]
+    #[diagnostic(
+        code(roth::cant_open_include_file),
+        help("Unable to open or read the file at `{1}`")
+    )]
+    CantOpenOrReadIncludeFile(
+        #[source_code] String,
+        String, // file name
+        #[label("This include statement points to a file that you don't have access to open")]
+        SourceSpan,
+    ),
 }
 
 #[derive(Error, Debug, Diagnostic)]
@@ -165,6 +192,6 @@ pub enum RuntimeError {
     )]
     UnexpectedEndToken(
         #[source_code] String,
-        #[label("Try removing this token")] SourceSpan
+        #[label("Try removing this token")] SourceSpan,
     ),
 }
