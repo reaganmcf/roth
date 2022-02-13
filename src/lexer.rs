@@ -272,8 +272,9 @@ mod tests {
 2
 // some other thing
 +
-");
-        
+",
+        );
+
         let expected = expect![[r#"
             [
                 Token {
