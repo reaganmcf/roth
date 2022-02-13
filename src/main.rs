@@ -2,15 +2,17 @@ mod error;
 mod lexer;
 mod op;
 mod parser;
+mod preprocessor;
 mod runtime;
 mod stack;
 mod token;
 mod val;
 
 use miette::Result;
+use preprocessor::PreProcessor;
 use reedline::{DefaultPrompt, Reedline, Signal};
 use runtime::Runtime;
-use std::process;
+use std::{env::set_current_dir, path::PathBuf, process};
 
 use lexer::Lexer;
 use parser::Parser;
@@ -26,6 +28,16 @@ fn main() -> Result<()> {
         let file_name = args.get(1).unwrap();
         match std::fs::read_to_string(file_name) {
             Ok(contents) => {
+                // we have to set our current working directory to where this file is
+                let path = PathBuf::from(file_name);
+                match path.parent() {
+                    Some(dir) => {
+                        if set_current_dir(dir).is_err() {
+                            todo!("failed to set current dir to file's parent");
+                        }
+                    }
+                    None => todo!("file name doesn't have parent folder"),
+                }
                 eval(contents)?;
                 Ok(())
             }
@@ -68,7 +80,8 @@ fn repl() -> Result<()> {
 }
 
 fn eval(source: String) -> Result<Stack> {
-    let tokens = Lexer::new(source.as_str()).lex()?;
-    let ops = Parser::new(tokens).parse(source.to_string())?;
-    Runtime::new(source, ops).run()
+    let expanded_source = PreProcessor::new(source.as_str()).expand()?;
+    let tokens = Lexer::new(expanded_source.as_str()).lex()?;
+    let ops = Parser::new(tokens).parse(expanded_source.to_string())?;
+    Runtime::new(expanded_source, ops).run()
 }
