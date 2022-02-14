@@ -15,8 +15,11 @@ impl Op {
 #[derive(Debug, Clone)]
 pub enum OpKind {
     PushInt { val: i128 },
-    PushString { val: String },
-    PushBoolean { val: bool },
+    PushStr { val: String },
+    PushBool { val: bool },
+    PushTypeInt,
+    PushTypeStr,
+    PushTypeBool,
     Add,
     Sub,
     Mul,

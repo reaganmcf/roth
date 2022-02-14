@@ -1,0 +1,14 @@
+// type::int
+1 2 type
+
+// true
+true false or type type::bool eq
+
+// true
+"something" type type::str eq
+
+// false
+"123" type type::str eq
+
+// true
+123 type type::int eq

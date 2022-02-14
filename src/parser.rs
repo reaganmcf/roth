@@ -68,7 +68,10 @@ impl Parser {
                 TokenKind::Over => OpKind::Over,
                 TokenKind::Rot => OpKind::Rot,
                 TokenKind::Type => OpKind::GetType,
-                TokenKind::String => OpKind::PushString {
+                TokenKind::TypeInt => OpKind::PushTypeInt,
+                TokenKind::TypeStr => OpKind::PushTypeStr,
+                TokenKind::TypeBool => OpKind::PushTypeBool,
+                TokenKind::String => OpKind::PushStr {
                     val: token.inner.clone(),
                 },
                 TokenKind::Number => match token.inner.parse::<i128>() {
@@ -78,7 +81,7 @@ impl Parser {
                     }
                 },
                 TokenKind::Boolean => match token.inner.parse::<bool>() {
-                    Ok(v) => OpKind::PushBoolean { val: v },
+                    Ok(v) => OpKind::PushBool { val: v },
                     Err(_) => {
                         unreachable!("Lexer said it was a boolean, but it can't be parsed as one")
                     }

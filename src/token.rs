@@ -102,4 +102,13 @@ pub enum TokenKind {
 
     // 'type'
     Type,
+
+    // 'type::int'
+    TypeInt,
+
+    // 'type::bool'
+    TypeBool,
+
+    // 'type::str`
+    TypeStr
 }

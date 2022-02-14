@@ -19,18 +19,18 @@ impl Val {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ValType {
     Int,
-    String,
-    Boolean
+    Str,
+    Bool
 }
 
 #[derive(Debug, Clone)]
 pub enum ValKind {
     Int { val: i128 },
-    String { val: String },
-    Boolean { val: bool },
+    Str { val: String },
+    Bool { val: bool },
     Type { val: ValType }
 }
 
@@ -38,8 +38,8 @@ impl std::fmt::Display for ValType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ValType::Int => write!(f, "type::int"),
-            ValType::String => write!(f, "type::string"),
-            ValType::Boolean => write!(f, "type::boolean"),
+            ValType::Str => write!(f, "type::string"),
+            ValType::Bool => write!(f, "type::boolean"),
         }
     }
 }
@@ -65,8 +65,8 @@ impl Display for Val {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.kind {
             ValKind::Int { val, .. } => write!(f, "{}", val),
-            ValKind::String { val, .. } => write!(f, "{}", val),
-            ValKind::Boolean { val, .. } => write!(f, "{}", val),
+            ValKind::Str { val, .. } => write!(f, "{}", val),
+            ValKind::Bool { val, .. } => write!(f, "{}", val),
             ValKind::Type { val, .. } => write!(f, "{}", val)
         }
     }
@@ -96,9 +96,9 @@ impl Val {
                 merged_span,
                 ValKind::Int { val: x + y }
             )),
-            (String, String, |x, y| Val::new(
+            (Str, Str, |x, y| Val::new(
                 merged_span,
-                ValKind::String {
+                ValKind::Str {
                     val: format!("{}{}", x, y)
                 }
             ))
@@ -201,9 +201,9 @@ impl Val {
             other,
             source,
             InvalidOr,
-            (Boolean, Boolean, |x, y| Val::new(
+            (Bool, Bool, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x || y }
+                ValKind::Bool { val: x || y }
             ))
         );
         Err(RuntimeError::InvalidOr(
@@ -225,9 +225,9 @@ impl Val {
             other,
             source,
             InvalidAnd,
-            (Boolean, Boolean, |x, y| Val::new(
+            (Bool, Bool, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x && y }
+                ValKind::Bool { val: x && y }
             ))
         );
         Err(RuntimeError::InvalidAnd(
@@ -240,7 +240,7 @@ impl Val {
     pub fn not(self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         match self.kind {
-            ValKind::Boolean { val } => Ok(Val::new(merged_span, ValKind::Boolean { val: !val })),
+            ValKind::Bool { val } => Ok(Val::new(merged_span, ValKind::Bool { val: !val })),
             _ => Err(RuntimeError::InvalidNot(source.to_string(), self.span)),
         }
     }
@@ -259,15 +259,19 @@ impl Val {
             InvalidEq,
             (Int, Int, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x == y }
+                ValKind::Bool { val: x == y }
             )),
-            (String, String, |x, y| Val::new(
+            (Str, Str, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x == y }
+                ValKind::Bool { val: x == y }
             )),
-            (Boolean, Boolean, |x, y| Val::new(
+            (Bool, Bool, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x == y }
+                ValKind::Bool { val: x == y }
+            )),
+            (Type, Type, |x, y| Val::new(
+                merged_span,
+                ValKind::Bool { val: x == y }
             ))
         );
         Err(RuntimeError::InvalidEq(
@@ -291,11 +295,11 @@ impl Val {
             InvalidLessThan,
             (Int, Int, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x < y }
+                ValKind::Bool { val: x < y }
             )),
-            (String, String, |x, y| Val::new(
+            (Str, Str, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x < y }
+                ValKind::Bool { val: x < y }
             ))
         );
         Err(RuntimeError::InvalidLessThan(
@@ -319,11 +323,11 @@ impl Val {
             InvalidGreaterThan,
             (Int, Int, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x > y }
+                ValKind::Bool { val: x > y }
             )),
-            (String, String, |x, y| Val::new(
+            (Str, Str, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x > y }
+                ValKind::Bool { val: x > y }
             ))
         );
         Err(RuntimeError::InvalidGreaterThan(
@@ -347,11 +351,11 @@ impl Val {
             InvalidLessThanEq,
             (Int, Int, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x <= y }
+                ValKind::Bool { val: x <= y }
             )),
-            (String, String, |x, y| Val::new(
+            (Str, Str, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x <= y }
+                ValKind::Bool { val: x <= y }
             ))
         );
         Err(RuntimeError::InvalidLessThanEq(
@@ -375,11 +379,11 @@ impl Val {
             InvalidGreaterThanEq,
             (Int, Int, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x >= y }
+                ValKind::Bool { val: x >= y }
             )),
-            (String, String, |x, y| Val::new(
+            (Str, Str, |x, y| Val::new(
                 merged_span,
-                ValKind::Boolean { val: x >= y }
+                ValKind::Bool { val: x >= y }
             ))
         );
         Err(RuntimeError::InvalidGreaterThanEq(
@@ -389,13 +393,13 @@ impl Val {
         ))
     }
 
-    pub fn get_type(self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
+    pub fn get_type(self, op_span: SourceSpan) -> Self {
         let merged_span = self.merge_spans(op_span);
         match &self.kind {
-            ValKind::Int { .. } => Ok(Val::new(merged_span, ValKind::Type { val: ValType::Int })),
-            ValKind::Boolean { .. } => Ok(Val::new(merged_span, ValKind::Type { val: ValType::Boolean })),
-            ValKind::String { .. } => Ok(Val::new(merged_span, ValKind::Type { val: ValType::Boolean })),
-            ValKind::Type { .. } => Ok(self.clone())
+            ValKind::Int { .. } => Val::new(merged_span, ValKind::Type { val: ValType::Int }),
+            ValKind::Bool { .. } => Val::new(merged_span, ValKind::Type { val: ValType::Bool }),
+            ValKind::Str { .. } => Val::new(merged_span, ValKind::Type { val: ValType::Str }),
+            ValKind::Type { .. } => self.clone()
         }
     }
 }

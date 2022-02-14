@@ -56,6 +56,9 @@ impl Lexer {
             "over" => Ok(TokenKind::Over),
             "rot" => Ok(TokenKind::Rot),
             "type" => Ok(TokenKind::Type),
+            "type::int" => Ok(TokenKind::TypeInt),
+            "type::str" => Ok(TokenKind::TypeStr),
+            "type::bool" => Ok(TokenKind::TypeBool),
             _ => {
                 if raw_token.starts_with('\"') {
                     if raw_token.ends_with('\"') {

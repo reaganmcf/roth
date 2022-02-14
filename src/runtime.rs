@@ -6,7 +6,7 @@ use crate::{
     error::RuntimeError,
     op::{Op, OpKind},
     stack::Stack,
-    val::{Val, ValKind},
+    val::{Val, ValKind, ValType},
 };
 
 enum EvalMode {
@@ -66,7 +66,7 @@ impl Runtime {
         let val = self.stack.pop()?;
 
         match val.kind() {
-            ValKind::Boolean { val } => {
+            ValKind::Bool { val } => {
                 if *val {
                     // Keep evaluating as normal
                     self.mode = EvalMode::If { last_span: op.span };
@@ -120,12 +120,21 @@ impl Runtime {
             OpKind::PushInt { val: v } => {
                 self.stack.push(Val::new(op.span, ValKind::Int { val: v }))
             }
-            OpKind::PushString { val: v } => self
+            OpKind::PushStr { val: v } => {
+                self.stack.push(Val::new(op.span, ValKind::Str { val: v }))
+            }
+            OpKind::PushBool { val: v } => {
+                self.stack.push(Val::new(op.span, ValKind::Bool { val: v }))
+            }
+            OpKind::PushTypeInt => self
                 .stack
-                .push(Val::new(op.span, ValKind::String { val: v })),
-            OpKind::PushBoolean { val: v } => self
+                .push(Val::new(op.span, ValKind::Type { val: ValType::Int })),
+            OpKind::PushTypeStr => self
                 .stack
-                .push(Val::new(op.span, ValKind::Boolean { val: v })),
+                .push(Val::new(op.span, ValKind::Type { val: ValType::Str })),
+            OpKind::PushTypeBool => self
+                .stack
+                .push(Val::new(op.span, ValKind::Type { val: ValType::Bool })),
             OpKind::Add => {
                 let y = self.stack.pop()?;
                 let x = self.stack.pop()?;
@@ -218,7 +227,7 @@ impl Runtime {
             }
             OpKind::GetType => {
                 let x = self.stack.pop()?;
-                self.stack.push(x.get_type(self.source.as_str(), op.span)?)
+                self.stack.push(x.get_type(op.span))
             }
             _ => unreachable!("non simple opkind should have already been processed"),
         }
