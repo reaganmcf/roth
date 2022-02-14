@@ -1,10 +1,6 @@
 use fancy_regex::Regex;
 use miette::Result;
-use std::{
-    fs::File,
-    io::Read,
-    path::PathBuf,
-};
+use std::{fs::File, io::Read, path::PathBuf};
 
 use crate::error::ParseError;
 
