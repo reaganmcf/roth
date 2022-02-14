@@ -37,4 +37,5 @@ pub enum OpKind {
     Swap,
     Over,
     Rot,
+    GetType,
 }

@@ -216,6 +216,10 @@ impl Runtime {
             OpKind::Rot => {
                 self.stack.rot()?;
             }
+            OpKind::GetType => {
+                let x = self.stack.pop()?;
+                self.stack.push(x.get_type(self.source.as_str(), op.span)?)
+            }
             _ => unreachable!("non simple opkind should have already been processed"),
         }
 

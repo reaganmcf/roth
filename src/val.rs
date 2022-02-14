@@ -20,10 +20,28 @@ impl Val {
 }
 
 #[derive(Debug, Clone)]
+pub enum ValType {
+    Int,
+    String,
+    Boolean
+}
+
+#[derive(Debug, Clone)]
 pub enum ValKind {
     Int { val: i128 },
     String { val: String },
     Boolean { val: bool },
+    Type { val: ValType }
+}
+
+impl std::fmt::Display for ValType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ValType::Int => write!(f, "type::int"),
+            ValType::String => write!(f, "type::string"),
+            ValType::Boolean => write!(f, "type::boolean"),
+        }
+    }
 }
 
 macro_rules! handlers {
@@ -49,6 +67,7 @@ impl Display for Val {
             ValKind::Int { val, .. } => write!(f, "{}", val),
             ValKind::String { val, .. } => write!(f, "{}", val),
             ValKind::Boolean { val, .. } => write!(f, "{}", val),
+            ValKind::Type { val, .. } => write!(f, "{}", val)
         }
     }
 }
@@ -368,5 +387,15 @@ impl Val {
             self.span,
             other.span,
         ))
+    }
+
+    pub fn get_type(self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
+        let merged_span = self.merge_spans(op_span);
+        match &self.kind {
+            ValKind::Int { .. } => Ok(Val::new(merged_span, ValKind::Type { val: ValType::Int })),
+            ValKind::Boolean { .. } => Ok(Val::new(merged_span, ValKind::Type { val: ValType::Boolean })),
+            ValKind::String { .. } => Ok(Val::new(merged_span, ValKind::Type { val: ValType::Boolean })),
+            ValKind::Type { .. } => Ok(self.clone())
+        }
     }
 }

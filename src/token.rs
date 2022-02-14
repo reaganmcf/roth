@@ -99,4 +99,7 @@ pub enum TokenKind {
 
     // '.*'
     Ident,
+
+    // 'type'
+    Type,
 }
