@@ -71,6 +71,7 @@ impl Parser {
                 TokenKind::TypeInt => OpKind::PushTypeInt,
                 TokenKind::TypeStr => OpKind::PushTypeStr,
                 TokenKind::TypeBool => OpKind::PushTypeBool,
+                TokenKind::Assert => OpKind::Assert,
                 TokenKind::String => OpKind::PushStr {
                     val: token.inner.clone(),
                 },

@@ -229,6 +229,11 @@ impl Runtime {
                 let x = self.stack.pop()?;
                 self.stack.push(x.get_type(op.span))
             }
+            OpKind::Assert => {
+                let x = self.stack.pop()?;
+                x.assert(self.source.as_str(), op.span)?
+            }
+
             _ => unreachable!("non simple opkind should have already been processed"),
         }
 

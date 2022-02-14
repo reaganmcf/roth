@@ -110,5 +110,8 @@ pub enum TokenKind {
     TypeBool,
 
     // 'type::str`
-    TypeStr
+    TypeStr,
+
+    // 'assert'
+    Assert
 }

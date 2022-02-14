@@ -41,4 +41,5 @@ pub enum OpKind {
     Over,
     Rot,
     GetType,
+    Assert
 }

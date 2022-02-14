@@ -194,4 +194,21 @@ pub enum RuntimeError {
         #[source_code] String,
         #[label("Try removing this token")] SourceSpan,
     ),
+
+    #[error("Assertion failed")]
+    #[diagnostic(code(roth::assertion_failed))]
+    AssertionFailed(
+        #[source_code] String,
+        #[label("this assertion did not evaluate to `true`")] SourceSpan,
+    ),
+
+    #[error("Can't assert this type")]
+    #[diagnostic(
+        code(roth::invalid_add),
+        help("assert statements can only be used with bool values")
+    )]
+    InvalidAssert(
+        #[source_code] String,
+        #[label("can only assert bool values")] SourceSpan,
+    ),
 }

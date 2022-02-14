@@ -1,14 +1,15 @@
 // type::int
-1 2 type
+1 2 type type::int eq assert
 
 // true
-true false or type type::bool eq
+true false or type type::bool eq assert
 
 // true
-"something" type type::str eq
+"something" type type::str eq assert
 
 // false
-"123" type type::str eq
+"123" type type::str eq assert
 
 // true
-123 type type::int eq
+123 type type::int eq assert
+

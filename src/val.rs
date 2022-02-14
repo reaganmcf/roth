@@ -23,7 +23,7 @@ impl Val {
 pub enum ValType {
     Int,
     Str,
-    Bool
+    Bool,
 }
 
 #[derive(Debug, Clone)]
@@ -31,7 +31,7 @@ pub enum ValKind {
     Int { val: i128 },
     Str { val: String },
     Bool { val: bool },
-    Type { val: ValType }
+    Type { val: ValType },
 }
 
 impl std::fmt::Display for ValType {
@@ -67,7 +67,7 @@ impl Display for Val {
             ValKind::Int { val, .. } => write!(f, "{}", val),
             ValKind::Str { val, .. } => write!(f, "{}", val),
             ValKind::Bool { val, .. } => write!(f, "{}", val),
-            ValKind::Type { val, .. } => write!(f, "{}", val)
+            ValKind::Type { val, .. } => write!(f, "{}", val),
         }
     }
 }
@@ -80,12 +80,7 @@ impl Val {
         (off, len).into()
     }
 
-    pub fn add(
-        self,
-        other: Self,
-        source: &str,
-        op_span: SourceSpan,
-    ) -> Result<Self, RuntimeError> {
+    pub fn add(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         handlers!(
             self,
@@ -111,12 +106,7 @@ impl Val {
         ))
     }
 
-    pub fn sub(
-        self,
-        other: Self,
-        source: &str,
-        op_span: SourceSpan,
-    ) -> Result<Self, RuntimeError> {
+    pub fn sub(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         handlers!(
             self,
@@ -135,12 +125,7 @@ impl Val {
         ))
     }
 
-    pub fn mul(
-        self,
-        other: Self,
-        source: &str,
-        op_span: SourceSpan,
-    ) -> Result<Self, RuntimeError> {
+    pub fn mul(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         handlers!(
             self,
@@ -160,12 +145,7 @@ impl Val {
         ))
     }
 
-    pub fn div(
-        self,
-        other: Self,
-        source: &str,
-        op_span: SourceSpan,
-    ) -> Result<Self, RuntimeError> {
+    pub fn div(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         handlers!(
             self,
@@ -189,12 +169,7 @@ impl Val {
         println!("{}", self);
     }
 
-    pub fn or(
-        self,
-        other: Self,
-        source: &str,
-        op_span: SourceSpan,
-    ) -> Result<Self, RuntimeError> {
+    pub fn or(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         handlers!(
             self,
@@ -213,12 +188,7 @@ impl Val {
         ))
     }
 
-    pub fn and(
-        self,
-        other: Self,
-        source: &str,
-        op_span: SourceSpan,
-    ) -> Result<Self, RuntimeError> {
+    pub fn and(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         handlers!(
             self,
@@ -245,12 +215,7 @@ impl Val {
         }
     }
 
-    pub fn eq(
-        self,
-        other: Self,
-        source: &str,
-        op_span: SourceSpan,
-    ) -> Result<Self, RuntimeError> {
+    pub fn eq(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         handlers!(
             self,
@@ -281,12 +246,7 @@ impl Val {
         ))
     }
 
-    pub fn lt(
-        self,
-        other: Self,
-        source: &str,
-        op_span: SourceSpan,
-    ) -> Result<Self, RuntimeError> {
+    pub fn lt(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         handlers!(
             self,
@@ -309,12 +269,7 @@ impl Val {
         ))
     }
 
-    pub fn gt(
-        self,
-        other: Self,
-        source: &str,
-        op_span: SourceSpan,
-    ) -> Result<Self, RuntimeError> {
+    pub fn gt(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         handlers!(
             self,
@@ -337,12 +292,7 @@ impl Val {
         ))
     }
 
-    pub fn lte(
-        self,
-        other: Self,
-        source: &str,
-        op_span: SourceSpan,
-    ) -> Result<Self, RuntimeError> {
+    pub fn lte(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         handlers!(
             self,
@@ -365,12 +315,7 @@ impl Val {
         ))
     }
 
-    pub fn gte(
-        self,
-        other: Self,
-        source: &str,
-        op_span: SourceSpan,
-    ) -> Result<Self, RuntimeError> {
+    pub fn gte(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
         handlers!(
             self,
@@ -393,13 +338,25 @@ impl Val {
         ))
     }
 
+    pub fn assert(self, source: &str, op_span: SourceSpan) -> Result<(), RuntimeError> {
+        match self.kind {
+            ValKind::Bool { val } => {
+                if !val {
+                    return Err(RuntimeError::AssertionFailed(source.to_string(), op_span));
+                }
+                Ok(())
+            }
+            _ => Err(RuntimeError::InvalidAssert(source.to_string(), op_span)),
+        }
+    }
+
     pub fn get_type(self, op_span: SourceSpan) -> Self {
         let merged_span = self.merge_spans(op_span);
         match &self.kind {
             ValKind::Int { .. } => Val::new(merged_span, ValKind::Type { val: ValType::Int }),
             ValKind::Bool { .. } => Val::new(merged_span, ValKind::Type { val: ValType::Bool }),
             ValKind::Str { .. } => Val::new(merged_span, ValKind::Type { val: ValType::Str }),
-            ValKind::Type { .. } => self.clone()
+            ValKind::Type { .. } => self.clone(),
         }
     }
 }
