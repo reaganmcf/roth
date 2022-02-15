@@ -12,4 +12,3 @@ true false or type type::bool eq assert
 
 // true
 123 type type::int eq assert
-

@@ -1,4 +1,3 @@
 include("./macro.roth")
-include("something")
 
 hello_world!
