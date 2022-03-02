@@ -14,6 +14,10 @@ impl Val {
         Self { span, kind }
     }
 
+    pub fn span(&self) -> SourceSpan {
+        self.span.clone()
+    }
+
     pub fn kind(&self) -> &ValKind {
         &self.kind
     }
@@ -24,6 +28,7 @@ pub enum ValType {
     Int,
     Str,
     Bool,
+    BoxedInt,
 }
 
 #[derive(Debug, Clone)]
@@ -32,6 +37,7 @@ pub enum ValKind {
     Str { val: String },
     Bool { val: bool },
     Type { val: ValType },
+    BoxedInt { val: Box<i128> },
 }
 
 impl std::fmt::Display for ValType {
@@ -40,6 +46,7 @@ impl std::fmt::Display for ValType {
             ValType::Int => write!(f, "type::int"),
             ValType::Str => write!(f, "type::string"),
             ValType::Bool => write!(f, "type::boolean"),
+            ValType::BoxedInt => write!(f, "type::box<int>"),
         }
     }
 }
@@ -64,10 +71,11 @@ macro_rules! handlers {
 impl Display for Val {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.kind {
-            ValKind::Int { val, .. } => write!(f, "{}", val),
-            ValKind::Str { val, .. } => write!(f, "{}", val),
-            ValKind::Bool { val, .. } => write!(f, "{}", val),
-            ValKind::Type { val, .. } => write!(f, "{}", val),
+            ValKind::Int { val } => write!(f, "{}", val),
+            ValKind::Str { val } => write!(f, "{}", val),
+            ValKind::Bool { val } => write!(f, "{}", val),
+            ValKind::Type { val } => write!(f, "{}", val),
+            ValKind::BoxedInt { .. } => write!(f, "BoxedInt"),
         }
     }
 }
@@ -357,6 +365,12 @@ impl Val {
             ValKind::Bool { .. } => Val::new(merged_span, ValKind::Type { val: ValType::Bool }),
             ValKind::Str { .. } => Val::new(merged_span, ValKind::Type { val: ValType::Str }),
             ValKind::Type { .. } => self.clone(),
+            ValKind::BoxedInt { .. } => Val::new(
+                merged_span,
+                ValKind::Type {
+                    val: ValType::BoxedInt,
+                },
+            ),
         }
     }
 }

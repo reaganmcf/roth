@@ -211,4 +211,14 @@ pub enum RuntimeError {
         #[source_code] String,
         #[label("can only assert bool values")] SourceSpan,
     ),
+
+    #[error("Can't create a box without a type")]
+    #[diagnostic(
+        code(roth::pointers_need_types),
+        help("Push a type to the stack before using the `box` keyword")
+    )]
+    BoxesNeedTypes(
+        #[source_code] String,
+        #[label("this value should be `type::...`")] SourceSpan,
+    ),
 }

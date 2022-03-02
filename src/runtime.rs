@@ -42,6 +42,7 @@ impl Runtime {
                         );
                     }
                 }
+                OpKind::CreateBox => self.eval_create_box(op)?,
                 _ => self.eval_simple(op)?,
             }
         }
@@ -115,6 +116,24 @@ impl Runtime {
         Ok(())
     }
 
+    fn eval_create_box(&mut self, op: Op) -> Result<()> {
+        let x = self.stack.pop()?;
+        if let ValKind::Type { val } = x.kind() {
+            match val {
+                ValType::Int => {
+                    Ok(self
+                    .stack
+                    .push(Val::new(op.span, ValKind::BoxedInt { val: Box::new(0) })))
+                }
+                _ => {
+                    todo!("only int boxes are supported currently");
+                }
+            }
+        } else {
+            return Err(RuntimeError::BoxesNeedTypes(self.source.clone(), x.span()).into());
+        }
+    }
+
     fn eval_simple(&mut self, op: Op) -> Result<()> {
         match op.kind {
             OpKind::PushInt { val: v } => {
@@ -135,6 +154,9 @@ impl Runtime {
             OpKind::PushTypeBool => self
                 .stack
                 .push(Val::new(op.span, ValKind::Type { val: ValType::Bool })),
+            OpKind::PushTypeBoxedInt => self
+                .stack
+                .push(Val::new(op.span, ValKind::Type { val: ValType::BoxedInt })),
             OpKind::Add => {
                 let y = self.stack.pop()?;
                 let x = self.stack.pop()?;
