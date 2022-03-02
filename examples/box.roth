@@ -1,0 +1,14 @@
+// create a new boxed int
+type::int box
+
+// store 64 in it
+64 over pack
+
+// do some other stuff here
+dup "The box is: " print type print
+
+dup "The value inside the box is: " print unpack print
+
+// unpack the value inside the box and put it on the stack 
+unpack
+64 eq assert 
