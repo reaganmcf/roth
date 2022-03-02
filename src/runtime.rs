@@ -43,6 +43,8 @@ impl Runtime {
                     }
                 }
                 OpKind::CreateBox => self.eval_create_box(op)?,
+                OpKind::Pack => self.eval_pack_box()?,
+                OpKind::Unpack => self.eval_unpack_box(op)?,
                 _ => self.eval_simple(op)?,
             }
         }
@@ -120,11 +122,9 @@ impl Runtime {
         let x = self.stack.pop()?;
         if let ValKind::Type { val } = x.kind() {
             match val {
-                ValType::Int => {
-                    Ok(self
+                ValType::Int => Ok(self
                     .stack
-                    .push(Val::new(op.span, ValKind::BoxedInt { val: Box::new(0) })))
-                }
+                    .push(Val::new(op.span, ValKind::BoxedInt { val: Box::new(0) }))),
                 _ => {
                     todo!("only int boxes are supported currently");
                 }
@@ -132,6 +132,24 @@ impl Runtime {
         } else {
             return Err(RuntimeError::BoxesNeedTypes(self.source.clone(), x.span()).into());
         }
+    }
+
+    fn eval_pack_box(&mut self) -> Result<()> {
+        let mut roth_box = self.stack.pop()?;
+        let val = self.stack.pop()?;
+        roth_box.pack(self.source.clone(), val)?;
+        
+        // push the box back onto the stack
+        self.stack.push(roth_box);
+        Ok(())
+    }
+
+    fn eval_unpack_box(&mut self, op: Op) -> Result<()> {
+        let mut roth_box = self.stack.pop()?;
+        let val = roth_box.unpack(self.source.clone(), op)?;
+        self.stack.push(val);
+
+        Ok(())
     }
 
     fn eval_simple(&mut self, op: Op) -> Result<()> {
@@ -154,9 +172,12 @@ impl Runtime {
             OpKind::PushTypeBool => self
                 .stack
                 .push(Val::new(op.span, ValKind::Type { val: ValType::Bool })),
-            OpKind::PushTypeBoxedInt => self
-                .stack
-                .push(Val::new(op.span, ValKind::Type { val: ValType::BoxedInt })),
+            OpKind::PushTypeBoxedInt => self.stack.push(Val::new(
+                op.span,
+                ValKind::Type {
+                    val: ValType::BoxedInt,
+                },
+            )),
             OpKind::Add => {
                 let y = self.stack.pop()?;
                 let x = self.stack.pop()?;

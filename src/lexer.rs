@@ -62,6 +62,8 @@ impl Lexer {
             "type::box<int>" => Ok(TokenKind::TypeBoxedInt),
             "assert" => Ok(TokenKind::Assert),
             "box" => Ok(TokenKind::Box),
+            "pack" => Ok(TokenKind::Pack),
+            "unpack" => Ok(TokenKind::Unpack),
             _ => {
                 if raw_token.starts_with('\"') {
                     if raw_token.ends_with('\"') {

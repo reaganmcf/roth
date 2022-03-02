@@ -120,4 +120,10 @@ pub enum TokenKind {
 
     // 'box'
     Box,
+
+    // 'pack'
+    Pack,
+
+    // 'unpack'
+    Unpack
 }

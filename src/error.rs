@@ -1,6 +1,8 @@
 use miette::{Diagnostic, SourceSpan};
 use thiserror::Error;
 
+use crate::val::ValType;
+
 #[derive(Error, Debug, Diagnostic)]
 pub enum ParseError {
     #[error("Cannot open file")]
@@ -221,4 +223,35 @@ pub enum RuntimeError {
         #[source_code] String,
         #[label("this value should be `type::...`")] SourceSpan,
     ),
+
+    #[error("Can't pack non-box types")]
+    #[diagnostic(
+        code(roth::can_only_pack_boxes),
+        help("`pack` can only be used on boxes")
+    )]
+    CanOnlyPackBoxes(
+        #[source_code] String,
+        #[label("this value is not a box")] SourceSpan,
+    ),
+
+    #[error("Can't unpack non-box types")]
+    #[diagnostic(
+        code(roth::can_only_pack_boxes),
+        help("`unpack` can only be used on boxes")
+    )]
+    CanOnlyUnpackBoxes(
+        #[source_code] String,
+        #[label("this value is not a box")] SourceSpan,
+    ),
+
+    #[error("{1} boxes can only be packed with {1} values")]
+    #[diagnostic(
+        code(roth::incompatible_box),
+        help("`pack` only works with compatible value types")
+    )]
+    IncompatibleBox(
+        #[source_code] String,
+        ValType, // type
+        #[label("This type is not {1}")] SourceSpan
+    )
 }

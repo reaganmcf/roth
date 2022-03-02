@@ -18,6 +18,8 @@ pub enum OpKind {
     PushStr { val: String },
     PushBool { val: bool },
     CreateBox,
+    Pack,
+    Unpack,
     PushTypeInt,
     PushTypeStr,
     PushTypeBool,

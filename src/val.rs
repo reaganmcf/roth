@@ -1,6 +1,6 @@
-use miette::SourceSpan;
+use miette::{Result, SourceSpan};
 
-use crate::error::RuntimeError;
+use crate::{error::RuntimeError, op::Op};
 use std::fmt::Display;
 
 #[derive(Debug, Clone)]
@@ -20,6 +20,28 @@ impl Val {
 
     pub fn kind(&self) -> &ValKind {
         &self.kind
+    }
+
+    pub fn pack(&mut self, source: String, val: Val) -> Result<()> {
+        match &mut self.kind {
+            ValKind::BoxedInt { val: dest } => match val.kind {
+                ValKind::Int { val: x } => {
+                    **dest = x;
+                    Ok(())
+                }
+                _ => Err(
+                    RuntimeError::IncompatibleBox(source.clone(), ValType::Int, val.span()).into(),
+                ),
+            },
+            _ => return Err(RuntimeError::CanOnlyPackBoxes(source.clone(), val.span()).into()),
+        }
+    }
+
+    pub fn unpack(&mut self, source: String, op: Op) -> Result<Self> {
+        match self.kind() {
+            ValKind::BoxedInt { val } => Ok(Val::new(op.span, ValKind::Int { val: **val })),
+            _ => return Err(RuntimeError::CanOnlyUnpackBoxes(source.clone(), self.span.clone()).into()),
+        }
     }
 }
 
