@@ -60,6 +60,8 @@ impl Lexer {
             "type::str" => Ok(TokenKind::TypeStr),
             "type::bool" => Ok(TokenKind::TypeBool),
             "type::box<int>" => Ok(TokenKind::TypeBoxedInt),
+            "type::box<str>" => Ok(TokenKind::TypeBoxedStr),
+            "type::box<bool>" => Ok(TokenKind::TypeBoxedBool),
             "assert" => Ok(TokenKind::Assert),
             "box" => Ok(TokenKind::Box),
             "pack" => Ok(TokenKind::Pack),

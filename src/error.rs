@@ -251,7 +251,17 @@ pub enum RuntimeError {
     )]
     IncompatibleBox(
         #[source_code] String,
-        ValType, // type
+        ValType,
         #[label("This type is not {1}")] SourceSpan
+    ),
+
+    #[error("Boxes cannot be created for this type")]
+    #[diagnostic(
+        code(roth::unboxable_type),
+        help("boxes can only be created for types `type::int`, `type::str`, and `type::bool`")
+    )]
+    UnboxableType(
+        #[source_code] String,
+        #[label("this type is not boxable")] SourceSpan
     )
 }

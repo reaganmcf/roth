@@ -72,6 +72,8 @@ impl Parser {
                 TokenKind::TypeStr => OpKind::PushTypeStr,
                 TokenKind::TypeBool => OpKind::PushTypeBool,
                 TokenKind::TypeBoxedInt => OpKind::PushTypeBoxedInt,
+                TokenKind::TypeBoxedStr => OpKind::PushTypeBoxedStr,
+                TokenKind::TypeBoxedBool => OpKind::PushTypeBoxedBool,
                 TokenKind::Assert => OpKind::Assert,
                 TokenKind::Box => OpKind::CreateBox,
                 TokenKind::Pack => OpKind::Pack,

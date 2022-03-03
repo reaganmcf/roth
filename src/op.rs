@@ -24,6 +24,8 @@ pub enum OpKind {
     PushTypeStr,
     PushTypeBool,
     PushTypeBoxedInt,
+    PushTypeBoxedStr,
+    PushTypeBoxedBool,
     Add,
     Sub,
     Mul,

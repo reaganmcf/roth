@@ -115,6 +115,12 @@ pub enum TokenKind {
     // 'type::box<int>'
     TypeBoxedInt,
 
+    // 'type::box<str>'
+    TypeBoxedStr,
+
+    // 'type::box<bool>'
+    TypeBoxedBool,
+
     // 'assert'
     Assert,
 

@@ -119,18 +119,28 @@ impl Runtime {
     }
 
     fn eval_create_box(&mut self, op: Op) -> Result<()> {
-        let x = self.stack.pop()?;
-        if let ValKind::Type { val } = x.kind() {
+        let type_val = self.stack.pop()?;
+        if let ValKind::Type { val } = type_val.kind() {
             match val {
                 ValType::Int => Ok(self
                     .stack
                     .push(Val::new(op.span, ValKind::BoxedInt { val: Box::new(0) }))),
-                _ => {
-                    todo!("only int boxes are supported currently");
-                }
+                ValType::Str => Ok(self.stack.push(Val::new(
+                    op.span,
+                    ValKind::BoxedStr {
+                        val: Box::new(String::new()),
+                    },
+                ))),
+                ValType::Bool => Ok(self.stack.push(Val::new(
+                    op.span,
+                    ValKind::BoxedBool {
+                        val: Box::new(false),
+                    },
+                ))),
+                _ => Err(RuntimeError::UnboxableType(self.source.clone(), type_val.span()).into()),
             }
         } else {
-            return Err(RuntimeError::BoxesNeedTypes(self.source.clone(), x.span()).into());
+            return Err(RuntimeError::BoxesNeedTypes(self.source.clone(), type_val.span()).into());
         }
     }
 
@@ -138,7 +148,7 @@ impl Runtime {
         let mut roth_box = self.stack.pop()?;
         let val = self.stack.pop()?;
         roth_box.pack(self.source.clone(), val)?;
-        
+
         // push the box back onto the stack
         self.stack.push(roth_box);
         Ok(())
@@ -176,6 +186,18 @@ impl Runtime {
                 op.span,
                 ValKind::Type {
                     val: ValType::BoxedInt,
+                },
+            )),
+            OpKind::PushTypeBoxedStr => self.stack.push(Val::new(
+                op.span,
+                ValKind::Type {
+                    val: ValType::BoxedStr,
+                },
+            )),
+            OpKind::PushTypeBoxedBool => self.stack.push(Val::new(
+                op.span,
+                ValKind::Type {
+                    val: ValType::BoxedBool,
                 },
             )),
             OpKind::Add => {

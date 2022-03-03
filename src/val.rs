@@ -40,7 +40,11 @@ impl Val {
     pub fn unpack(&mut self, source: String, op: Op) -> Result<Self> {
         match self.kind() {
             ValKind::BoxedInt { val } => Ok(Val::new(op.span, ValKind::Int { val: **val })),
-            _ => return Err(RuntimeError::CanOnlyUnpackBoxes(source.clone(), self.span.clone()).into()),
+            _ => {
+                return Err(
+                    RuntimeError::CanOnlyUnpackBoxes(source.clone(), self.span.clone()).into(),
+                )
+            }
         }
     }
 }
@@ -51,6 +55,8 @@ pub enum ValType {
     Str,
     Bool,
     BoxedInt,
+    BoxedStr,
+    BoxedBool,
 }
 
 #[derive(Debug, Clone)]
@@ -60,15 +66,19 @@ pub enum ValKind {
     Bool { val: bool },
     Type { val: ValType },
     BoxedInt { val: Box<i128> },
+    BoxedStr { val: Box<String> },
+    BoxedBool { val: Box<bool> },
 }
 
 impl std::fmt::Display for ValType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ValType::Int => write!(f, "type::int"),
-            ValType::Str => write!(f, "type::string"),
-            ValType::Bool => write!(f, "type::boolean"),
+            ValType::Str => write!(f, "type::str"),
+            ValType::Bool => write!(f, "type::bool"),
             ValType::BoxedInt => write!(f, "type::box<int>"),
+            ValType::BoxedStr => write!(f, "type::box<str>"),
+            ValType::BoxedBool => write!(f, "type::box<bool>"),
         }
     }
 }
@@ -98,6 +108,8 @@ impl Display for Val {
             ValKind::Bool { val } => write!(f, "{}", val),
             ValKind::Type { val } => write!(f, "{}", val),
             ValKind::BoxedInt { .. } => write!(f, "BoxedInt"),
+            ValKind::BoxedStr { .. } => write!(f, "BoxedStr"),
+            ValKind::BoxedBool { .. } => write!(f, "BoxedBool"),
         }
     }
 }
@@ -391,6 +403,18 @@ impl Val {
                 merged_span,
                 ValKind::Type {
                     val: ValType::BoxedInt,
+                },
+            ),
+            ValKind::BoxedStr { .. } => Val::new(
+                merged_span,
+                ValKind::Type {
+                    val: ValType::BoxedStr,
+                },
+            ),
+            ValKind::BoxedBool { .. } => Val::new(
+                merged_span,
+                ValKind::Type {
+                    val: ValType::BoxedBool,
                 },
             ),
         }
