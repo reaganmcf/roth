@@ -1,6 +1,8 @@
 use miette::{Diagnostic, SourceSpan};
 use thiserror::Error;
 
+use crate::val::ValType;
+
 #[derive(Error, Debug, Diagnostic)]
 pub enum ParseError {
     #[error("Cannot open file")]
@@ -211,4 +213,55 @@ pub enum RuntimeError {
         #[source_code] String,
         #[label("can only assert bool values")] SourceSpan,
     ),
+
+    #[error("Can't create a box without a type")]
+    #[diagnostic(
+        code(roth::pointers_need_types),
+        help("Push a type to the stack before using the `box` keyword")
+    )]
+    BoxesNeedTypes(
+        #[source_code] String,
+        #[label("this value should be `type::...`")] SourceSpan,
+    ),
+
+    #[error("Can't pack non-box types")]
+    #[diagnostic(
+        code(roth::can_only_pack_boxes),
+        help("`pack` can only be used on boxes")
+    )]
+    CanOnlyPackBoxes(
+        #[source_code] String,
+        #[label("this value is not a box")] SourceSpan,
+    ),
+
+    #[error("Can't unpack non-box types")]
+    #[diagnostic(
+        code(roth::can_only_pack_boxes),
+        help("`unpack` can only be used on boxes")
+    )]
+    CanOnlyUnpackBoxes(
+        #[source_code] String,
+        #[label("this value is not a box")] SourceSpan,
+    ),
+
+    #[error("{1} boxes can only be packed with {1} values")]
+    #[diagnostic(
+        code(roth::incompatible_box),
+        help("`pack` only works with compatible value types")
+    )]
+    IncompatibleBox(
+        #[source_code] String,
+        ValType,
+        #[label("This type is not {1}")] SourceSpan
+    ),
+
+    #[error("Boxes cannot be created for this type")]
+    #[diagnostic(
+        code(roth::unboxable_type),
+        help("boxes can only be created for types `type::int`, `type::str`, and `type::bool`")
+    )]
+    UnboxableType(
+        #[source_code] String,
+        #[label("this type is not boxable")] SourceSpan
+    )
 }
