@@ -30,10 +30,10 @@ impl Val {
                     Ok(())
                 }
                 _ => Err(
-                    RuntimeError::IncompatibleBox(source.clone(), ValType::Int, val.span()).into(),
+                    RuntimeError::IncompatibleBox(source, ValType::Int, val.span()).into(),
                 ),
             },
-            _ => return Err(RuntimeError::CanOnlyPackBoxes(source.clone(), val.span()).into()),
+            _ => Err(RuntimeError::CanOnlyPackBoxes(source, val.span()).into()),
         }
     }
 
@@ -41,8 +41,8 @@ impl Val {
         match self.kind() {
             ValKind::BoxedInt { val } => Ok(Val::new(op.span, ValKind::Int { val: **val })),
             _ => {
-                return Err(
-                    RuntimeError::CanOnlyUnpackBoxes(source.clone(), self.span.clone()).into(),
+                Err(
+                    RuntimeError::CanOnlyUnpackBoxes(source, self.span.clone()).into(),
                 )
             }
         }

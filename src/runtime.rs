@@ -122,25 +122,34 @@ impl Runtime {
         let type_val = self.stack.pop()?;
         if let ValKind::Type { val } = type_val.kind() {
             match val {
-                ValType::Int => Ok(self
+                ValType::Int => {
+                    self
                     .stack
-                    .push(Val::new(op.span, ValKind::BoxedInt { val: Box::new(0) }))),
-                ValType::Str => Ok(self.stack.push(Val::new(
-                    op.span,
-                    ValKind::BoxedStr {
-                        val: Box::new(String::new()),
-                    },
-                ))),
-                ValType::Bool => Ok(self.stack.push(Val::new(
-                    op.span,
-                    ValKind::BoxedBool {
-                        val: Box::new(false),
-                    },
-                ))),
+                    .push(Val::new(op.span, ValKind::BoxedInt { val: Box::new(0) }));
+                    Ok(())
+                },
+                ValType::Str => {
+                    self.stack.push(Val::new(
+                        op.span,
+                        ValKind::BoxedStr {
+                            val: Box::new(String::new()),
+                        },
+                    ));
+                    Ok(())
+                },
+                ValType::Bool => {
+                    self.stack.push(Val::new(
+                        op.span,
+                        ValKind::BoxedBool {
+                            val: Box::new(false),
+                        },
+                    ));
+                    Ok(())
+                },
                 _ => Err(RuntimeError::UnboxableType(self.source.clone(), type_val.span()).into()),
             }
         } else {
-            return Err(RuntimeError::BoxesNeedTypes(self.source.clone(), type_val.span()).into());
+            Err(RuntimeError::BoxesNeedTypes(self.source.clone(), type_val.span()).into())
         }
     }
 
