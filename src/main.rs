@@ -82,6 +82,6 @@ fn repl() -> Result<()> {
 fn eval(source: String) -> Result<Stack> {
     let expanded_source = PreProcessor::new(source.as_str()).expand()?;
     let tokens = Lexer::new(expanded_source.as_str()).lex()?;
-    let ops = Parser::new(tokens).parse(expanded_source.to_string())?;
+    let ops = Parser::new(tokens).parse()?;
     Runtime::new(expanded_source, ops).run()
 }
