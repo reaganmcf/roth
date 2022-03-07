@@ -1,5 +1,7 @@
 use miette::SourceSpan;
 
+use crate::val::ValType;
+
 #[derive(Debug, Clone)]
 pub struct Op {
     pub(crate) span: SourceSpan,
@@ -17,7 +19,7 @@ pub enum OpKind {
     PushInt { val: i128 },
     PushStr { val: String },
     PushBool { val: bool },
-    CreateBox,
+    CreateBox { val_type: ValType, name: String },
     PushBox { name: String },
     Pack,
     Unpack,

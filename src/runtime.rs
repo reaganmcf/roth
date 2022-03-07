@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 
 use miette::{Result, SourceSpan};
 
@@ -19,6 +19,7 @@ pub struct Runtime {
     ops: VecDeque<Op>,
     stack: Stack,
     mode: EvalMode,
+    boxes: HashMap<String, Val>
 }
 
 impl Runtime {
@@ -28,6 +29,7 @@ impl Runtime {
             ops,
             mode: EvalMode::Normal,
             stack: Stack::new(),
+            boxes: HashMap::new()
         }
     }
 
@@ -42,7 +44,7 @@ impl Runtime {
                         );
                     }
                 }
-                OpKind::CreateBox => self.eval_create_box(op)?,
+                OpKind::CreateBox { .. } => self.eval_create_box(op)?,
                 OpKind::Pack => self.eval_pack_box()?,
                 OpKind::Unpack => self.eval_unpack_box(op)?,
                 _ => self.eval_simple(op)?,
@@ -118,41 +120,26 @@ impl Runtime {
         Ok(())
     }
 
+    /// TODO: - Rewrite box parser to allow named boxes
+    ///       - Implement PushBox op 
+
     fn eval_create_box(&mut self, op: Op) -> Result<()> {
-        let type_val = self.stack.pop()?;
-        if let ValKind::Type { val } = type_val.kind() {
-            match val {
-                ValType::Int => {
-                    self
-                    .stack
-                    .push(Val::new(op.span, ValKind::BoxedInt { val: Box::new(0) }));
-                    Ok(())
-                },
-                ValType::Str => {
-                    self.stack.push(Val::new(
-                        op.span,
-                        ValKind::BoxedStr {
-                            val: Box::new(String::new()),
-                        },
-                    ));
-                    Ok(())
-                },
-                ValType::Bool => {
-                    self.stack.push(Val::new(
-                        op.span,
-                        ValKind::BoxedBool {
-                            val: Box::new(false),
-                        },
-                    ));
-                    Ok(())
-                },
-                _ => Err(RuntimeError::UnboxableType(self.source.clone(), type_val.span()).into()),
-            }
+        if let OpKind::CreateBox { val_type, name } = op.kind {
+            // Create new box
+            let kind = match val_type {
+                ValType::Int => ValKind::BoxedInt { val: Box::new(0)},
+                ValType::Str => ValKind::BoxedStr { val: Box::new(String::new()) },
+                ValType::Bool => ValKind::BoxedBool { val: Box::new(false) },
+                _ => unreachable!("parser only allows simple boxes")
+            };
+            let b = Val::new(op.span, kind);
+            self.boxes.insert(name, b);
+
+            Ok(())
         } else {
-            Err(RuntimeError::BoxesNeedTypes(self.source.clone(), type_val.span()).into())
+            unreachable!("eval_create_box called with non create box operation")
         }
     }
-
     fn eval_pack_box(&mut self) -> Result<()> {
         let mut roth_box = self.stack.pop()?;
         let val = self.stack.pop()?;

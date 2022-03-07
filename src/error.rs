@@ -70,6 +70,36 @@ pub enum ParseError {
         #[label("This include statement points to a file that you don't have access to open")]
         SourceSpan,
     ),
+
+    #[error("Can't create a box without a type")]
+    #[diagnostic(
+        code(roth::boxes_need_types),
+        help("Create a box with the syntax `box type::... foo`")
+    )]
+    BoxesNeedTypes(
+        #[source_code] String,
+        #[label("this value should be `type::...`")] SourceSpan,
+    ),
+
+    #[error("Can't create a box without a name")]
+    #[diagnostic(
+        code(roth::boxes_need_names),
+        help("Create a box with the syntax `box type::... foo`")
+    )]
+    BoxesNeedNames(
+        #[source_code] String,
+        #[label("No name found for this box definition")] SourceSpan
+    ),
+
+    #[error("Boxes cannot be created for this type")]
+    #[diagnostic(
+        code(roth::unboxable_type),
+        help("boxes can only be created for types `type::int`, `type::str`, and `type::bool`")
+    )]
+    UnboxableType(
+        #[source_code] String,
+        #[label("this type is not boxable")] SourceSpan
+    )
 }
 
 #[derive(Error, Debug, Diagnostic)]
@@ -214,15 +244,6 @@ pub enum RuntimeError {
         #[label("can only assert bool values")] SourceSpan,
     ),
 
-    #[error("Can't create a box without a type")]
-    #[diagnostic(
-        code(roth::pointers_need_types),
-        help("Push a type to the stack before using the `box` keyword")
-    )]
-    BoxesNeedTypes(
-        #[source_code] String,
-        #[label("this value should be `type::...`")] SourceSpan,
-    ),
 
     #[error("Can't pack non-box types")]
     #[diagnostic(
@@ -255,13 +276,4 @@ pub enum RuntimeError {
         #[label("This type is not {1}")] SourceSpan
     ),
 
-    #[error("Boxes cannot be created for this type")]
-    #[diagnostic(
-        code(roth::unboxable_type),
-        help("boxes can only be created for types `type::int`, `type::str`, and `type::bool`")
-    )]
-    UnboxableType(
-        #[source_code] String,
-        #[label("this type is not boxable")] SourceSpan
-    )
 }
