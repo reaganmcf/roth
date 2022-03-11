@@ -19,7 +19,8 @@ pub struct Runtime {
     ops: VecDeque<Op>,
     stack: Stack,
     mode: EvalMode,
-    boxes: HashMap<String, Val>
+    box_ids: HashMap<String, (ValType, usize)>,
+    boxes: Vec<Val>,
 }
 
 impl Runtime {
@@ -29,7 +30,8 @@ impl Runtime {
             ops,
             mode: EvalMode::Normal,
             stack: Stack::new(),
-            boxes: HashMap::new()
+            box_ids: HashMap::new(),
+            boxes: Vec::new(),
         }
     }
 
@@ -37,16 +39,18 @@ impl Runtime {
         while let Some(op) = self.ops.pop_front() {
             match op.kind {
                 OpKind::If => self.eval_if(op)?,
-                OpKind::End => {
-                    if let EvalMode::Normal = self.mode {
+                OpKind::End => match self.mode {
+                    EvalMode::Normal => {
                         return Err(
                             RuntimeError::UnexpectedEndToken(self.source.clone(), op.span).into(),
-                        );
+                        )
                     }
-                }
+                    EvalMode::If { .. } => self.mode = EvalMode::Normal,
+                },
                 OpKind::CreateBox { .. } => self.eval_create_box(op)?,
                 OpKind::Pack => self.eval_pack_box()?,
-                OpKind::Unpack => self.eval_unpack_box(op)?,
+                OpKind::Unpack => self.eval_unpack_box()?,
+                OpKind::PushBox { .. } => self.eval_push_box(op)?,
                 _ => self.eval_simple(op)?,
             }
         }
@@ -120,42 +124,148 @@ impl Runtime {
         Ok(())
     }
 
-    /// TODO: - Rewrite box parser to allow named boxes
-    ///       - Implement PushBox op 
-
     fn eval_create_box(&mut self, op: Op) -> Result<()> {
         if let OpKind::CreateBox { val_type, name } = op.kind {
-            // Create new box
-            let kind = match val_type {
-                ValType::Int => ValKind::BoxedInt { val: Box::new(0)},
-                ValType::Str => ValKind::BoxedStr { val: Box::new(String::new()) },
-                ValType::Bool => ValKind::BoxedBool { val: Box::new(false) },
-                _ => unreachable!("parser only allows simple boxes")
+            if self.box_ids.contains_key(&name) {
+                return Err(RuntimeError::BoxWithIdenticalNameAlreadyExists(
+                    self.source.clone(),
+                    name.clone(),
+                    op.span,
+                )
+                .into());
+            }
+
+            let box_id = self.boxes.len();
+
+            let val = match val_type {
+                ValType::Int => ValKind::Int { val: 0 },
+                ValType::Str => ValKind::Str { val: String::new() },
+                ValType::Bool => ValKind::Bool { val: false },
+                _ => unreachable!("ICE: parser only allows simple boxes"),
             };
-            let b = Val::new(op.span, kind);
-            self.boxes.insert(name, b);
+
+            self.box_ids.insert(name, (val_type, box_id));
+            self.boxes.push(Val::new(op.span, val));
 
             Ok(())
         } else {
-            unreachable!("eval_create_box called with non create box operation")
+            unreachable!("ICE: eval_create_box called with non create box operation")
         }
     }
-    fn eval_pack_box(&mut self) -> Result<()> {
-        let mut roth_box = self.stack.pop()?;
-        let val = self.stack.pop()?;
-        roth_box.pack(self.source.clone(), val)?;
 
-        // push the box back onto the stack
-        self.stack.push(roth_box);
+    fn eval_pack_box(&mut self) -> Result<()> {
+        let b = self.stack.pop()?;
+        let val = self.stack.pop()?;
+
+        match b.kind() {
+            ValKind::BoxedInt { box_id } => match val.kind() {
+                ValKind::Int { .. } => {
+                    if self.boxes.get(*box_id).is_some() {
+                        self.boxes[*box_id] = val;
+                    } else {
+                        unreachable!("ICE: invalid id");
+                    }
+                }
+                _ => {
+                    return Err(RuntimeError::IncompatibleBox(
+                        self.source.clone(),
+                        ValType::Int,
+                        val.span(),
+                    )
+                    .into())
+                }
+            },
+            ValKind::BoxedStr { box_id } => match val.kind() {
+                ValKind::Str { .. } => {
+                    if self.boxes.get(*box_id).is_some() {
+                        self.boxes[*box_id] = val;
+                    } else {
+                        unreachable!("ICE: invalid id");
+                    }
+                }
+                _ => {
+                    return Err(RuntimeError::IncompatibleBox(
+                        self.source.clone(),
+                        ValType::Str,
+                        val.span(),
+                    )
+                    .into())
+                }
+            },
+            ValKind::BoxedBool { box_id } => match val.kind() {
+                ValKind::Bool { .. } => {
+                    if self.boxes.get(*box_id).is_some() {
+                        self.boxes[*box_id] = val;
+                    } else {
+                        unreachable!("ICE: invalid id");
+                    }
+                }
+                _ => {
+                    return Err(RuntimeError::IncompatibleBox(
+                        self.source.clone(),
+                        ValType::Bool,
+                        val.span(),
+                    )
+                    .into())
+                }
+            },
+
+            _ => return Err(RuntimeError::CanOnlyPackBoxes(self.source.clone(), b.span()).into()),
+        };
+
         Ok(())
     }
 
-    fn eval_unpack_box(&mut self, op: Op) -> Result<()> {
-        let mut roth_box = self.stack.pop()?;
-        let val = roth_box.unpack(self.source.clone(), op)?;
-        self.stack.push(val);
+    fn eval_unpack_box(&mut self) -> Result<()> {
+        let b = self.stack.pop()?;
+
+        match b.kind() {
+            ValKind::BoxedInt { box_id } => {
+                if let Some(val) = self.boxes.get(*box_id) {
+                    self.stack.push(val.clone());
+                } else {
+                    unreachable!("ICE: invalid id")
+                }
+            }
+            ValKind::BoxedStr { box_id } => {
+                if let Some(val) = self.boxes.get(*box_id) {
+                    self.stack.push(val.clone());
+                } else {
+                    unreachable!("ICE: invalid id")
+                }
+            }
+            ValKind::BoxedBool { box_id } => {
+                if let Some(val) = self.boxes.get(*box_id) {
+                    self.stack.push(val.clone());
+                } else {
+                    unreachable!("ICE: invalid id")
+                }
+            }
+            _ => {
+                return Err(RuntimeError::CanOnlyUnpackBoxes(self.source.clone(), b.span()).into())
+            }
+        }
 
         Ok(())
+    }
+
+    fn eval_push_box(&mut self, op: Op) -> Result<()> {
+        if let OpKind::PushBox { name } = op.kind {
+            if let Some((val_type, box_id)) = self.box_ids.get(&name) {
+                let val = match val_type {
+                    ValType::Int => Val::new(op.span, ValKind::BoxedInt { box_id: *box_id }),
+                    ValType::Str => Val::new(op.span, ValKind::BoxedStr { box_id: *box_id }),
+                    ValType::Bool => Val::new(op.span, ValKind::BoxedBool { box_id: *box_id }),
+                    _ => unreachable!("ICE: val_type can only be Int, Str, or Bool"),
+                };
+                self.stack.push(val);
+                Ok(())
+            } else {
+                return Err(RuntimeError::UnknownBox(self.source.clone(), op.span).into());
+            }
+        } else {
+            unreachable!("eval_push_box called with non PushBox op")
+        }
     }
 
     fn eval_simple(&mut self, op: Op) -> Result<()> {

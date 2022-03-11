@@ -1,14 +1,50 @@
-// create a new boxed int
-type::int box
+// Int Boxes
+box type::int myValue
+
+// default is 0
+myValue unpack 
 
 // store 64 in it
-64 over pack
+64 myValue pack
+myValue unpack 64 eq assert
 
-// do some other stuff here
-dup "The box is: " print type print
-
-dup "The value inside the box is: " print unpack print
+// store 128 in it
+128 myValue pack
+myValue unpack 128 eq assert
 
 // unpack the value inside the box and put it on the stack 
-unpack
-64 eq assert 
+myValue unpack
+64 eq not assert 
+
+myValue unpack
+128 eq assert
+
+// String Boxes
+box type::str first_name
+box type::str last_name
+
+// default is empty
+first_name unpack "" eq assert
+last_name unpack "" eq assert
+
+"Reagan" first_name pack
+"McFarland" last_name pack
+
+first_name unpack "-" + last_name unpack + "Reagan-McFarland" eq assert
+
+// Bool boxes
+box type::bool condition
+
+// default is false
+condition unpack false eq assert
+
+true condition pack
+
+box type::bool enteredCondition
+false enteredCondition pack
+
+condition unpack if
+  true enteredCondition pack
+end
+
+enteredCondition unpack assert

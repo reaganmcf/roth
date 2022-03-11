@@ -4,7 +4,7 @@ use crate::{error::RuntimeError, val::Val};
 
 #[derive(Debug, Clone)]
 pub struct Stack {
-    vals: VecDeque<Val>,
+    vals: VecDeque<Val>
 }
 
 impl Stack {

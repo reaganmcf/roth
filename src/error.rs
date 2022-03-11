@@ -12,38 +12,6 @@ pub enum ParseError {
     )]
     CannotReadFile(String),
 
-    #[error("Reached EOF before finding `end` token for macro definition")]
-    #[diagnostic(
-        code(roth::unclosed_macro),
-        help("Make sure macro `{2}` has a corresponding `end` token")
-    )]
-    UnclosedMacro(
-        #[source_code] String,
-        #[label("No `end` token for this macro expansion")] SourceSpan,
-        String,
-    ),
-
-    #[error("Macro definitions must be named")]
-    #[diagnostic(
-        code(roth::unnamed_macro),
-        help("Consider adding an identifier token, like `foo` after the `macro` keyword")
-    )]
-    UnnamedMacro(
-        #[source_code] String,
-        #[label("No identifier found after this macro keyword")] SourceSpan,
-    ),
-
-    #[error("Unknown macro")]
-    #[diagnostic(
-        code(roth::unknown_macro),
-        help("Could not find any macro with the name `{2}`. Is this a typo?")
-    )]
-    UnknownMacro(
-        #[source_code] String,
-        #[label("Unknown macro")] SourceSpan,
-        String,
-    ),
-
     #[error("unterminated string literal")]
     #[diagnostic(code(roth::unterminated_string))]
     UnterminatedStringLiteral,
@@ -88,7 +56,7 @@ pub enum ParseError {
     )]
     BoxesNeedNames(
         #[source_code] String,
-        #[label("No name found for this box definition")] SourceSpan
+        #[label("No name found for this box definition")] SourceSpan,
     ),
 
     #[error("Boxes cannot be created for this type")]
@@ -98,8 +66,8 @@ pub enum ParseError {
     )]
     UnboxableType(
         #[source_code] String,
-        #[label("this type is not boxable")] SourceSpan
-    )
+        #[label("this type is not boxable")] SourceSpan,
+    ),
 }
 
 #[derive(Error, Debug, Diagnostic)]
@@ -244,7 +212,6 @@ pub enum RuntimeError {
         #[label("can only assert bool values")] SourceSpan,
     ),
 
-
     #[error("Can't pack non-box types")]
     #[diagnostic(
         code(roth::can_only_pack_boxes),
@@ -273,7 +240,24 @@ pub enum RuntimeError {
     IncompatibleBox(
         #[source_code] String,
         ValType,
-        #[label("This type is not {1}")] SourceSpan
+        #[label("This type is not {1}")] SourceSpan,
     ),
 
+    #[error("Box with identical name already exists")]
+    #[diagnostic(code(roth::box_already_exists), help("rename `{1}` to something else"))]
+    BoxWithIdenticalNameAlreadyExists(
+        #[source_code] String,
+        String, // name that's already in use
+        #[label("rename this")] SourceSpan,
+    ),
+
+    #[error("Unknown box")]
+    #[diagnostic(
+        code(roth::unknown_box),
+        help("couldn't find any boxes with this name. Is it a typo?")
+    )]
+    UnknownBox(
+        #[source_code] String,
+        #[label("no box with this name")] SourceSpan
+    )
 }

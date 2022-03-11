@@ -1,6 +1,6 @@
 "foo" "bar"
 
-// if foo equals bar, enter this branch
+// if foo does not equals bar, enter this branch
 eq not if
   "foo does not equal bar" print
 

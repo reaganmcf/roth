@@ -21,32 +21,6 @@ impl Val {
     pub fn kind(&self) -> &ValKind {
         &self.kind
     }
-
-    pub fn pack(&mut self, source: String, val: Val) -> Result<()> {
-        match &mut self.kind {
-            ValKind::BoxedInt { val: dest } => match val.kind {
-                ValKind::Int { val: x } => {
-                    **dest = x;
-                    Ok(())
-                }
-                _ => Err(
-                    RuntimeError::IncompatibleBox(source, ValType::Int, val.span()).into(),
-                ),
-            },
-            _ => Err(RuntimeError::CanOnlyPackBoxes(source, val.span()).into()),
-        }
-    }
-
-    pub fn unpack(&mut self, source: String, op: Op) -> Result<Self> {
-        match self.kind() {
-            ValKind::BoxedInt { val } => Ok(Val::new(op.span, ValKind::Int { val: **val })),
-            _ => {
-                Err(
-                    RuntimeError::CanOnlyUnpackBoxes(source, self.span.clone()).into(),
-                )
-            }
-        }
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -65,9 +39,9 @@ pub enum ValKind {
     Str { val: String },
     Bool { val: bool },
     Type { val: ValType },
-    BoxedInt { val: Box<i128> },
-    BoxedStr { val: Box<String> },
-    BoxedBool { val: Box<bool> },
+    BoxedInt { box_id: usize },
+    BoxedStr { box_id: usize },
+    BoxedBool { box_id: usize },
 }
 
 impl std::fmt::Display for ValType {
