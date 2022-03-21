@@ -94,6 +94,7 @@ impl Lexer {
         while let Some(c) = self.source.pop_front() {
             self.cursor += 1;
             if c == '\n' {
+                self.eat_trivia();
                 break;
             }
         }
