@@ -60,6 +60,7 @@ impl Parser {
                 TokenKind::Box => self.parse_create_box(token.clone())?,
                 TokenKind::Pack => OpKind::Pack,
                 TokenKind::Unpack => OpKind::Unpack,
+                TokenKind::Until => OpKind::Until,
                 TokenKind::String => OpKind::PushStr {
                     val: token.inner.clone(),
                 },

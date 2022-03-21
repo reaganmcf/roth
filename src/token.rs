@@ -131,5 +131,8 @@ pub enum TokenKind {
     Pack,
 
     // 'unpack'
-    Unpack
+    Unpack,
+
+    // 'until'
+    Until
 }

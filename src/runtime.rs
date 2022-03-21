@@ -12,6 +12,7 @@ use crate::{
 enum EvalMode {
     Normal,
     If { last_span: SourceSpan },
+    Until { body: Vec<Op> },
 }
 
 pub struct Runtime {
@@ -37,20 +38,40 @@ impl Runtime {
 
     pub fn run(&mut self) -> Result<Stack> {
         while let Some(op) = self.ops.pop_front() {
+            // We need to copy the body of loops
+            if let EvalMode::Until { ref mut body } = self.mode {
+                body.push(op.clone());
+            }
+
             match op.kind {
                 OpKind::If => self.eval_if(op)?,
-                OpKind::End => match self.mode {
+                OpKind::End => match &mut self.mode {
                     EvalMode::Normal => {
                         return Err(
                             RuntimeError::UnexpectedEndToken(self.source.clone(), op.span).into(),
                         )
                     }
                     EvalMode::If { .. } => self.mode = EvalMode::Normal,
+                    EvalMode::Until { body } => {
+
+                        //print!("adding {:#?}", body);
+
+                        // add the loop body to ops
+                        body.reverse();
+                        for op in body {
+                            self.ops.push_front(op.clone());
+                        }
+
+                        //println!("front of ops after clone: {:#?}", self.ops.front());
+
+                        self.mode = EvalMode::Normal;
+                    }
                 },
                 OpKind::CreateBox { .. } => self.eval_create_box(op)?,
                 OpKind::Pack => self.eval_pack_box()?,
                 OpKind::Unpack => self.eval_unpack_box()?,
                 OpKind::PushBox { .. } => self.eval_push_box(op)?,
+                OpKind::Until => self.eval_until(op)?,
                 _ => self.eval_simple(op)?,
             }
         }
@@ -65,6 +86,30 @@ impl Runtime {
             .into()),
             _ => Ok(self.stack.clone()),
         }
+    }
+
+    // if the top of the stack is NOT true
+    //  1. continue evaluating until next corresponding end,
+    //     storing the tokens we are popping off
+    //  2. once we hit corresponding end, repeat, evaluating as normal
+    fn eval_until(&mut self, until_op: Op) -> Result<()> {
+        // TODO: nested untils, if's inside untils
+        let val = self.stack.pop()?;
+
+        match val.kind() {
+            ValKind::Bool { val } => {
+                if *val {
+                    self.skip_until_corresponding_end(until_op)?;
+                    println!("loop eval'd true - skipping body");
+                } else {
+                    self.mode = EvalMode::Until { body: vec![until_op] }
+                }
+            }
+            _ => {
+                todo!("until's only evaluate bools")
+            }
+        }
+        Ok(())
     }
 
     fn eval_if(&mut self, op: Op) -> Result<()> {
@@ -129,7 +174,7 @@ impl Runtime {
             if self.box_ids.contains_key(&name) {
                 return Err(RuntimeError::BoxWithIdenticalNameAlreadyExists(
                     self.source.clone(),
-                    name.clone(),
+                    name,
                     op.span,
                 )
                 .into());
@@ -261,7 +306,7 @@ impl Runtime {
                 self.stack.push(val);
                 Ok(())
             } else {
-                return Err(RuntimeError::UnknownBox(self.source.clone(), op.span).into());
+                Err(RuntimeError::UnknownBox(self.source.clone(), op.span).into())
             }
         } else {
             unreachable!("eval_push_box called with non PushBox op")

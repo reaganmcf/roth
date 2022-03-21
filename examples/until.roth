@@ -1,0 +1,18 @@
+box type::int sum
+
+0 sum pack
+
+false until
+// add 1 to sum
+sum unpack 1 + sum pack
+  
+// debug
+"inside loop!" print
+"sum is " sum unpack + print
+  
+// loop condition
+sum unpack 5 eq dup "loop value: " print print
+
+end
+
+"finished loop" print

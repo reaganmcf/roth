@@ -1,6 +1,6 @@
 use miette::{Result, SourceSpan};
 
-use crate::{error::RuntimeError, op::Op};
+use crate::error::RuntimeError;
 use std::fmt::Display;
 
 #[derive(Debug, Clone)]

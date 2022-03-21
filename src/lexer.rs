@@ -66,6 +66,7 @@ impl Lexer {
             "box" => Ok(TokenKind::Box),
             "pack" => Ok(TokenKind::Pack),
             "unpack" => Ok(TokenKind::Unpack),
+            "until" => Ok(TokenKind::Until),
             _ => {
                 if raw_token.starts_with('\"') {
                     if raw_token.ends_with('\"') {

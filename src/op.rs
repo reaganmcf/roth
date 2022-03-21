@@ -51,4 +51,5 @@ pub enum OpKind {
     Rot,
     GetType,
     Assert,
+    Until
 }
