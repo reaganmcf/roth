@@ -98,28 +98,36 @@ impl Val {
 
     pub fn add(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
         let merged_span = self.merge_spans(op_span);
-        handlers!(
-            self,
-            other,
-            source,
-            InvalidAdd,
-            (Int, Int, |x, y| Val::new(
-                merged_span,
-                ValKind::Int { val: x + y }
-            )),
-            (Str, Str, |x, y| Val::new(
+        let x = self.kind;
+        let y = other.kind;
+        match (x, y) {
+            (ValKind::Int { val: x }, ValKind::Int { val: y }) => {
+                Ok(Val::new(merged_span, ValKind::Int { val: x + y }))
+            }
+            (ValKind::Str { val: x }, ValKind::Str { val: y }) => Ok(Val::new(
                 merged_span,
                 ValKind::Str {
-                    val: format!("{}{}", x, y)
-                }
-            ))
-        );
-
-        Err(RuntimeError::InvalidAdd(
-            source.to_string(),
-            self.span,
-            other.span,
-        ))
+                    val: format!("{}{}", x, y),
+                },
+            )),
+            (ValKind::Str { val: x }, ValKind::Int { val: y }) => Ok(Val::new(
+                merged_span,
+                ValKind::Str {
+                    val: format!("{}{}", x, y),
+                },
+            )),
+            (ValKind::Int { val: x }, ValKind::Str { val: y }) => Ok(Val::new(
+                merged_span,
+                ValKind::Str {
+                    val: format!("{}{}", x, y),
+                },
+            )),
+            _ => Err(RuntimeError::InvalidAdd(
+                source.to_string(),
+                self.span,
+                other.span,
+            )),
+        }
     }
 
     pub fn sub(self, other: Self, source: &str, op_span: SourceSpan) -> Result<Self, RuntimeError> {
